@@ -9,6 +9,7 @@ import ZonesView from './components/ZonesView';
 import TasksView from './components/TasksView';
 import Statistics from './components/Statistics';
 import GrowthPlanView from './components/GrowthPlanView';
+import ProfitablePlantsView from './components/ProfitablePlantsView';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<PageView>('dashboard');
@@ -120,6 +121,8 @@ function App() {
         return <Statistics plants={plants} />;
       case 'growth-plan':
         return <GrowthPlanView />;
+      case 'profitable':
+        return <ProfitablePlantsView />;
       default:
         return <Dashboard plants={plants} zones={zones} tasks={tasks} />;
     }
