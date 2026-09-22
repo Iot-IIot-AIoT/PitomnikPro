@@ -38,4 +38,31 @@ export interface Task {
   notes: string;
 }
 
-export type PageView = 'dashboard' | 'plants' | 'zones' | 'tasks' | 'statistics';
+export interface GrowthStage {
+  id: string;
+  order: number;
+  title: string;
+  subtitle: string;
+  icon: string;
+  duration: string;
+  season: string;
+  description: string;
+  steps: string[];
+  tips: string[];
+  warnings: string[];
+  temperature?: string;
+  humidity?: string;
+  completed: boolean;
+}
+
+export interface GrowthPlan {
+  id: string;
+  plantName: string;
+  plantType: PlantType;
+  method: 'seeds' | 'cuttings' | 'grafting';
+  startDate: string;
+  stages: GrowthStage[];
+  notes: string;
+}
+
+export type PageView = 'dashboard' | 'plants' | 'zones' | 'tasks' | 'statistics' | 'growth-plan';
