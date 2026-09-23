@@ -9,6 +9,13 @@ export const PLANT_TYPE_LABELS: Record<PlantType, string> = {
   thuja: 'Туя',
   yew: 'Тис',
   larch: 'Лиственница',
+  blueberry: 'Голубика',
+  honeysuckle: 'Жимолость',
+  hydrangea: 'Гортензия',
+  spirea: 'Спирея',
+  lavender: 'Лаванда',
+  apple: 'Яблоня',
+  other: 'Другое',
 };
 
 export const PLANT_TYPE_EMOJIS: Record<PlantType, string> = {
@@ -20,6 +27,13 @@ export const PLANT_TYPE_EMOJIS: Record<PlantType, string> = {
   thuja: '🌲',
   yew: '🌿',
   larch: '🍃',
+  blueberry: '🫐',
+  honeysuckle: '🫐',
+  hydrangea: '🌸',
+  spirea: '🌺',
+  lavender: '💜',
+  apple: '🍎',
+  other: '🌱',
 };
 
 export const HEALTH_LABELS = {
@@ -197,7 +211,7 @@ export const initialPlants: Plant[] = [
     id: '9',
     name: 'Голубика высокорослая',
     latinName: 'Vaccinium corymbosum',
-    type: 'juniper',
+    type: 'blueberry',
     variety: 'Патриот',
     health: 'excellent',
     status: 'growing',
@@ -214,7 +228,7 @@ export const initialPlants: Plant[] = [
     id: '10',
     name: 'Жимолость съедобная',
     latinName: 'Lonicera caerulea',
-    type: 'juniper',
+    type: 'honeysuckle',
     variety: 'Бакчарская',
     health: 'good',
     status: 'growing',
@@ -232,7 +246,7 @@ export const initialPlants: Plant[] = [
     id: '11',
     name: 'Гортензия метельчатая',
     latinName: 'Hydrangea paniculata',
-    type: 'juniper',
+    type: 'hydrangea',
     variety: 'Лаймлайт',
     health: 'excellent',
     status: 'growing',
@@ -249,7 +263,7 @@ export const initialPlants: Plant[] = [
     id: '12',
     name: 'Спирея японская',
     latinName: 'Spiraea japonica',
-    type: 'juniper',
+    type: 'spirea',
     variety: 'Голден Принцесс',
     health: 'good',
     status: 'growing',
@@ -266,7 +280,7 @@ export const initialPlants: Plant[] = [
     id: '13',
     name: 'Лаванда узколистная',
     latinName: 'Lavandula angustifolia',
-    type: 'juniper',
+    type: 'lavender',
     variety: 'Hidcote',
     health: 'good',
     status: 'growing',
@@ -284,7 +298,7 @@ export const initialPlants: Plant[] = [
     id: '14',
     name: 'Яблоня карликовая',
     latinName: 'Malus domestica',
-    type: 'juniper',
+    type: 'apple',
     variety: 'Колонновидная',
     health: 'good',
     status: 'growing',
@@ -300,8 +314,10 @@ export const initialPlants: Plant[] = [
 ];
 
 export const initialZones: Zone[] = [
-  { id: 'z1', name: 'Зона А', capacity: 50, currentCount: 2, description: 'Молодые саженцы' },
-  { id: 'z2', name: 'Зона Б', capacity: 40, currentCount: 1, description: 'Крупномерные' },
+  { id: 'z1', name: 'Зона А', capacity: 50, currentCount: 3, description: 'Молодые саженцы и хвойные' },
+  { id: 'z2', name: 'Зона Б', capacity: 40, currentCount: 3, description: 'Крупномерные хвойные' },
+  { id: 'z3', name: 'Зона В', capacity: 30, currentCount: 3, description: 'Декоративные и цветущие' },
+  { id: 'z4', name: 'Зона Г', capacity: 35, currentCount: 3, description: 'Ягодные и плодовые' },
 ];
 
 export const initialTasks: Task[] = [

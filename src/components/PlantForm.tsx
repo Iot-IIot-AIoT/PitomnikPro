@@ -49,6 +49,7 @@ export default function PlantForm({ plant, onSave, onCancel }: PlantFormProps) {
       notes: form.notes || '',
       lastWatered: form.lastWatered || new Date().toISOString().split('T')[0],
       lastFertilized: form.lastFertilized || new Date().toISOString().split('T')[0],
+      financials: form.financials && form.financials.costPerUnit > 0 ? form.financials : undefined,
     };
     onSave(newPlant);
   };
@@ -163,7 +164,7 @@ export default function PlantForm({ plant, onSave, onCancel }: PlantFormProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Здоровье</label>
               <select
@@ -188,16 +189,102 @@ export default function PlantForm({ plant, onSave, onCancel }: PlantFormProps) {
                 ))}
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Высота (см)</label>
-              <input
-                type="number"
-                value={form.height}
-                onChange={e => updateField('height', parseInt(e.target.value) || 0)}
-                min={0}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
-              />
+          </div>
+
+          {/* Финансовые показатели */}
+          <div className="border-t border-gray-200 pt-5">
+            <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+              💰 Финансовые показатели (опционально)
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Себестоимость (₽)</label>
+                <input
+                  type="number"
+                  value={form.financials?.costPerUnit || ''}
+                  onChange={e => {
+                    const value = parseInt(e.target.value) || 0;
+                    setForm(prev => ({
+                      ...prev,
+                      financials: {
+                        ...prev.financials,
+                        costPerUnit: value,
+                        sellingPrice: prev.financials?.sellingPrice || 0,
+                        profitPerUnit: (prev.financials?.sellingPrice || 0) - value,
+                        roi: prev.financials?.roi || 0,
+                        paybackMonths: prev.financials?.paybackMonths || 0,
+                        demand: prev.financials?.demand || 'medium',
+                      }
+                    }));
+                  }}
+                  min={0}
+                  placeholder="0"
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Цена продажи (₽)</label>
+                <input
+                  type="number"
+                  value={form.financials?.sellingPrice || ''}
+                  onChange={e => {
+                    const sellingPrice = parseInt(e.target.value) || 0;
+                    const costPerUnit = form.financials?.costPerUnit || 0;
+                    const profitPerUnit = sellingPrice - costPerUnit;
+                    const roi = costPerUnit > 0 ? Math.round((profitPerUnit / costPerUnit) * 100) : 0;
+                    setForm(prev => ({
+                      ...prev,
+                      financials: {
+                        ...prev.financials,
+                        sellingPrice,
+                        profitPerUnit,
+                        roi,
+                        costPerUnit,
+                        paybackMonths: prev.financials?.paybackMonths || 0,
+                        demand: prev.financials?.demand || 'medium',
+                      }
+                    }));
+                  }}
+                  min={0}
+                  placeholder="0"
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Спрос</label>
+                <select
+                  value={form.financials?.demand || 'medium'}
+                  onChange={e => {
+                    setForm(prev => ({
+                      ...prev,
+                      financials: {
+                        ...prev.financials,
+                        demand: e.target.value as 'low' | 'medium' | 'high' | 'very-high',
+                        costPerUnit: prev.financials?.costPerUnit || 0,
+                        sellingPrice: prev.financials?.sellingPrice || 0,
+                        profitPerUnit: prev.financials?.profitPerUnit || 0,
+                        roi: prev.financials?.roi || 0,
+                        paybackMonths: prev.financials?.paybackMonths || 0,
+                      }
+                    }));
+                  }}
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                >
+                  <option value="low">Низкий 📉</option>
+                  <option value="medium">Средний 📊</option>
+                  <option value="high">Высокий 📈</option>
+                  <option value="very-high">Очень высокий 🔥</option>
+                </select>
+              </div>
             </div>
+            {form.financials && form.financials.profitPerUnit > 0 && (
+              <div className="mt-3 p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+                <p className="text-sm text-emerald-700">
+                  💡 Прибыль: <span className="font-bold">{form.financials.profitPerUnit} ₽</span> • 
+                  ROI: <span className="font-bold">{form.financials.roi}%</span>
+                </p>
+              </div>
+            )}
           </div>
 
           <div>

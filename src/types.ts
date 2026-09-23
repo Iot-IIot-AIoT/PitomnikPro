@@ -1,6 +1,8 @@
 export type PlantHealth = 'excellent' | 'good' | 'fair' | 'poor' | 'critical';
 export type PlantStatus = 'growing' | 'transplanting' | 'resting' | 'sold' | 'planned';
-export type PlantType = 'pine' | 'spruce' | 'fir' | 'juniper' | 'cypress' | 'thuja' | 'yew' | 'larch';
+export type PlantType = 
+  | 'pine' | 'spruce' | 'fir' | 'juniper' | 'cypress' | 'thuja' | 'yew' | 'larch'
+  | 'blueberry' | 'honeysuckle' | 'hydrangea' | 'spirea' | 'lavender' | 'apple' | 'other';
 
 export interface PlantHistoryEntry {
   id: string;
