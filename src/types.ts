@@ -38,4 +38,51 @@ export interface Task {
   notes: string;
 }
 
-export type PageView = 'dashboard' | 'plants' | 'zones' | 'tasks' | 'statistics';
+export interface GrowthStage {
+  id: string;
+  order: number;
+  title: string;
+  subtitle: string;
+  icon: string;
+  duration: string;
+  season: string;
+  description: string;
+  steps: string[];
+  tips: string[];
+  warnings: string[];
+  temperature?: string;
+  humidity?: string;
+  completed: boolean;
+}
+
+export interface GrowthPlan {
+  id: string;
+  plantName: string;
+  plantType: PlantType;
+  method: 'seeds' | 'cuttings';
+  startDate: string;
+  stages: GrowthStage[];
+  notes: string;
+}
+
+export interface ProfitablePlant {
+  id: string;
+  name: string;
+  latinName: string;
+  category: 'conifer' | 'berry' | 'fruit' | 'ornamental';
+  difficulty: 'easy' | 'medium' | 'hard';
+  growthTime: string;
+  costPerUnit: number;
+  sellingPrice: number;
+  profitPerUnit: number;
+  roi: number;
+  paybackMonths: number;
+  demand: 'low' | 'medium' | 'high' | 'very-high';
+  season: string;
+  description: string;
+  keyBenefits: string[];
+  challenges: string[];
+  marketTips: string[];
+}
+
+export type PageView = 'dashboard' | 'plants' | 'zones' | 'tasks' | 'statistics' | 'growth-plan' | 'profitable' | 'business';
