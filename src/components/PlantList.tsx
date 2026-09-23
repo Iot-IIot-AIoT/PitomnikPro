@@ -1,16 +1,17 @@
 import { useState } from 'react';
-import { Plant, PlantType, PlantHealth, PlantStatus } from '../types';
+import { Plant, Task, PlantType, PlantHealth, PlantStatus } from '../types';
 import { PLANT_TYPE_LABELS, PLANT_TYPE_EMOJIS, HEALTH_LABELS, HEALTH_COLORS, STATUS_LABELS, STATUS_COLORS } from '../data';
-import { Search, Filter, Plus, Edit2, Trash2, Eye } from 'lucide-react';
+import { Search, Filter, Plus, Edit2, Trash2, Eye, CheckCircle2, Clock } from 'lucide-react';
 
 interface PlantListProps {
   plants: Plant[];
+  tasks: Task[];
   onAdd: () => void;
   onEdit: (plant: Plant) => void;
   onDelete: (id: string) => void;
 }
 
-export default function PlantList({ plants, onAdd, onEdit, onDelete }: PlantListProps) {
+export default function PlantList({ plants, tasks, onAdd, onEdit, onDelete }: PlantListProps) {
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<PlantType | ''>('');
   const [filterHealth, setFilterHealth] = useState<PlantHealth | ''>('');
@@ -194,6 +195,38 @@ export default function PlantList({ plants, onAdd, onEdit, onDelete }: PlantList
                     <p className="text-sm text-gray-700 bg-white p-3 rounded-lg border border-gray-100">{plant.notes}</p>
                   </div>
                 )}
+                
+                {/* Связанные задачи */}
+                {(() => {
+                  const plantTasks = tasks.filter(t => t.plantId === plant.id);
+                  if (plantTasks.length > 0) {
+                    return (
+                      <div className="mt-4">
+                        <p className="text-xs text-gray-500 mb-2 flex items-center gap-1">
+                          <Clock className="w-3 h-3" /> Задачи ({plantTasks.length})
+                        </p>
+                        <div className="space-y-2">
+                          {plantTasks.map(task => (
+                            <div key={task.id} className="flex items-center gap-2 p-2 bg-white rounded-lg border border-gray-100">
+                              {task.completed ? (
+                                <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                              ) : (
+                                <Clock className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <p className={`text-sm ${task.completed ? 'line-through text-gray-400' : 'text-gray-700'}`}>
+                                  {task.type === 'watering' ? '💧' : task.type === 'fertilizing' ? '🧪' : task.type === 'pruning' ? '✂️' : task.type === 'transplanting' ? '🔄' : '🔍'} {task.notes || task.type}
+                                </p>
+                                <p className="text-xs text-gray-500">{new Date(task.dueDate).toLocaleDateString('ru-RU')}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
             )}
           </div>

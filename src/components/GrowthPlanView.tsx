@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { GrowthPlan, PlantType } from '../types';
-import { PLANT_TYPE_LABELS } from '../data';
-import { CheckCircle2, Circle, Plus, Trash2, Clock, Calendar, Target, AlertTriangle, Lightbulb, Thermometer, Droplets, ChevronDown, ChevronRight } from 'lucide-react';
+import { GrowthPlan, Plant, PlantType } from '../types';
+import { PLANT_TYPE_LABELS, PLANT_TYPE_EMOJIS } from '../data';
+import { CheckCircle2, Circle, Plus, Trash2, Clock, Calendar, Target, AlertTriangle, Lightbulb, Thermometer, Droplets, ChevronDown, ChevronRight, TreePine } from 'lucide-react';
 
 const SEED_STAGES = [
   {
@@ -126,7 +126,11 @@ const DEFAULT_PLANS: GrowthPlan[] = [
   },
 ];
 
-export default function GrowthPlanView() {
+interface GrowthPlanViewProps {
+  plants: Plant[];
+}
+
+export default function GrowthPlanView({ plants }: GrowthPlanViewProps) {
   const [plans, setPlans] = useState<GrowthPlan[]>(() => {
     const saved = localStorage.getItem('growth-plans');
     return saved ? JSON.parse(saved) : DEFAULT_PLANS;
@@ -199,6 +203,25 @@ export default function GrowthPlanView() {
                   {selectedPlan.method === 'seeds' ? '🌰 Выращивание из семян' : '✂️ Размножение черенками'} •
                   Начало: {new Date(selectedPlan.startDate).toLocaleDateString('ru-RU')}
                 </p>
+                {/* Связанные растения */}
+                {(() => {
+                  const relatedPlants = plants.filter(p => p.type === selectedPlan.plantType);
+                  if (relatedPlants.length > 0) {
+                    return (
+                      <div className="mt-3 flex items-center gap-2 flex-wrap">
+                        <span className="text-xs text-gray-500 flex items-center gap-1">
+                          <TreePine className="w-3 h-3" /> Растения этого вида:
+                        </span>
+                        {relatedPlants.map(plant => (
+                          <span key={plant.id} className="text-xs px-2 py-1 bg-emerald-50 text-emerald-700 rounded-full">
+                            {PLANT_TYPE_EMOJIS[plant.type]} {plant.name}
+                          </span>
+                        ))}
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
               <div className="text-center">
                 <div className="relative w-20 h-20">

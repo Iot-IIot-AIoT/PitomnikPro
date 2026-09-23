@@ -132,15 +132,27 @@ export default function Dashboard({ plants, zones, tasks }: DashboardProps) {
             Ближайшие задачи
           </h3>
           <div className="space-y-3">
-            {pendingTasks.slice(0, 5).map(task => (
-              <div key={task.id} className="p-3 rounded-lg bg-gray-50 border border-gray-100">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium text-gray-800">{task.plantName}</span>
-                  <span className="text-xs text-gray-500">{new Date(task.dueDate).toLocaleDateString('ru-RU')}</span>
+            {pendingTasks.slice(0, 5).map(task => {
+              const plant = plants.find(p => p.id === task.plantId);
+              return (
+                <div key={task.id} className="p-3 rounded-lg bg-gray-50 border border-gray-100">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      {plant && <span className="text-sm">{PLANT_TYPE_EMOJIS[plant.type]}</span>}
+                      <span className="text-sm font-medium text-gray-800">{task.plantName}</span>
+                    </div>
+                    <span className="text-xs text-gray-500">{new Date(task.dueDate).toLocaleDateString('ru-RU')}</span>
+                  </div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                      {task.type === 'watering' ? '💧 Полив' : task.type === 'fertilizing' ? '🧪 Подкормка' : task.type === 'pruning' ? '✂️ Обрезка' : task.type === 'transplanting' ? '🔄 Пересадка' : '🔍 Осмотр'}
+                    </span>
+                    {plant && <span className="text-xs text-gray-500">📍 {plant.zone}</span>}
+                  </div>
+                  <p className="text-xs text-gray-500">{task.notes}</p>
                 </div>
-                <p className="text-xs text-gray-500">{task.notes}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

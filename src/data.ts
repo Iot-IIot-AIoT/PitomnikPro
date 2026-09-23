@@ -129,4 +129,13 @@ export const initialTasks: Task[] = [
     completed: false,
     notes: 'Комплексная подкормка',
   },
+  {
+    id: 't3',
+    plantId: '3',
+    plantName: 'Можжевельник казацкий',
+    type: 'watering',
+    dueDate: '2025-01-05',
+    completed: false,
+    notes: 'Полив после пересадки',
+  },
 ];

@@ -100,6 +100,7 @@ function App() {
         return (
           <PlantList
             plants={plants}
+            tasks={tasks}
             onAdd={() => { setEditingPlant(null); setShowPlantForm(true); }}
             onEdit={handleEditPlant}
             onDelete={handleDeletePlant}
@@ -111,6 +112,7 @@ function App() {
         return (
           <TasksView
             tasks={tasks}
+            plants={plants}
             onToggleTask={handleToggleTask}
             onAddTask={handleAddTask}
             onDeleteTask={handleDeleteTask}
@@ -119,7 +121,7 @@ function App() {
       case 'statistics':
         return <Statistics plants={plants} />;
       case 'growth-plan':
-        return <GrowthPlanView />;
+        return <GrowthPlanView plants={plants} />;
       case 'profitable':
         return <ProfitablePlantsView />;
       case 'business':

@@ -1,18 +1,21 @@
 import { useState } from 'react';
-import { Task } from '../types';
-import { CheckCircle2, Circle, Plus, Calendar, Filter, Trash2 } from 'lucide-react';
+import { Task, Plant } from '../types';
+import { PLANT_TYPE_EMOJIS } from '../data';
+import { CheckCircle2, Circle, Plus, Calendar, Filter, Trash2, TreePine } from 'lucide-react';
 
 interface TasksViewProps {
   tasks: Task[];
+  plants: Plant[];
   onToggleTask: (id: string) => void;
   onAddTask: (task: Task) => void;
   onDeleteTask: (id: string) => void;
 }
 
-export default function TasksView({ tasks, onToggleTask, onAddTask, onDeleteTask }: TasksViewProps) {
+export default function TasksView({ tasks, plants, onToggleTask, onAddTask, onDeleteTask }: TasksViewProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
   const [newTask, setNewTask] = useState({
+    plantId: '',
     plantName: '',
     type: 'watering' as Task['type'],
     dueDate: new Date().toISOString().split('T')[0],
@@ -29,19 +32,19 @@ export default function TasksView({ tasks, onToggleTask, onAddTask, onDeleteTask
   });
 
   const handleAdd = () => {
-    if (!newTask.plantName) return;
+    if (!newTask.plantId || !newTask.plantName) return;
     // Безопасная генерация ID для всех браузеров
     const taskId = Date.now().toString(36) + Math.random().toString(36).substr(2);
     onAddTask({
       id: taskId,
-      plantId: '',
+      plantId: newTask.plantId,
       plantName: newTask.plantName,
       type: newTask.type,
       dueDate: newTask.dueDate,
       completed: false,
       notes: newTask.notes,
     });
-    setNewTask({ plantName: '', type: 'watering', dueDate: new Date().toISOString().split('T')[0], notes: '' });
+    setNewTask({ plantId: '', plantName: '', type: 'watering', dueDate: new Date().toISOString().split('T')[0], notes: '' });
     setShowAddForm(false);
   };
 
@@ -108,14 +111,26 @@ export default function TasksView({ tasks, onToggleTask, onAddTask, onDeleteTask
           <h3 className="font-semibold text-gray-800 mb-4">Новая задача</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Растение</label>
-              <input
-                type="text"
-                value={newTask.plantName}
-                onChange={e => setNewTask({ ...newTask, plantName: e.target.value })}
-                placeholder="Название растения"
+              <label className="block text-sm font-medium text-gray-700 mb-1">Растение *</label>
+              <select
+                value={newTask.plantId}
+                onChange={e => {
+                  const selectedPlant = plants.find(p => p.id === e.target.value);
+                  setNewTask({ 
+                    ...newTask, 
+                    plantId: e.target.value,
+                    plantName: selectedPlant?.name || ''
+                  });
+                }}
                 className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
-              />
+              >
+                <option value="">Выберите растение</option>
+                {plants.map(plant => (
+                  <option key={plant.id} value={plant.id}>
+                    {PLANT_TYPE_EMOJIS[plant.type]} {plant.name} ({plant.zone})
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Тип работы</label>
@@ -188,6 +203,7 @@ export default function TasksView({ tasks, onToggleTask, onAddTask, onDeleteTask
         {filteredTasks.map(task => {
           const config = taskTypeConfig[task.type];
           const isOverdue = !task.completed && new Date(task.dueDate) < new Date();
+          const plant = plants.find(p => p.id === task.plantId);
 
           return (
             <div
@@ -225,6 +241,23 @@ export default function TasksView({ tasks, onToggleTask, onAddTask, onDeleteTask
                   <p className={`text-sm mt-1 ${task.completed ? 'text-gray-400' : 'text-gray-500'}`}>
                     {task.notes}
                   </p>
+                )}
+                {/* Информация о растении */}
+                {plant && (
+                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                    <span className="flex items-center gap-1">
+                      <span>{PLANT_TYPE_EMOJIS[plant.type]}</span>
+                      <span>{plant.variety}</span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <TreePine className="w-3 h-3" />
+                      <span>{plant.height} см</span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span>📍</span>
+                      <span>{plant.zone}</span>
+                    </span>
+                  </div>
                 )}
               </div>
 

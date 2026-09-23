@@ -38,6 +38,11 @@ export interface Task {
   notes: string;
 }
 
+export interface PlantWithRelations extends Plant {
+  tasks: Task[];
+  growthPlan?: GrowthPlan;
+}
+
 export interface GrowthStage {
   id: string;
   order: number;
