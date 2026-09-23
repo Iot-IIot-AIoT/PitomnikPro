@@ -100,12 +100,30 @@ function App() {
     setPlants(prev => {
       const existing = prev.find(p => p.id === plant.id);
       if (existing) {
-        return prev.map(p => p.id === plant.id ? plant : p);
+        // Добавляем запись в историю при редактировании
+        const historyEntry = {
+          id: Date.now().toString(36) + Math.random().toString(36).substr(2),
+          date: new Date().toISOString().split('T')[0],
+          action: '✏️ Редактирование',
+          details: 'Данные растения обновлены',
+        };
+        return prev.map(p => p.id === plant.id ? {
+          ...plant,
+          history: [historyEntry, ...(p.history || [])],
+        } : p);
       }
-      // Новое растение - создаём для него план выращивания
+      // Новое растение - создаём для него план выращивания и историю
       const newPlan = createGrowthPlanFromTemplate(plant.id, plant.type, plant.plantedDate);
       setGrowthPlans(prevPlans => [...prevPlans, newPlan]);
-      return [...prev, plant];
+      
+      const historyEntry = {
+        id: Date.now().toString(36) + Math.random().toString(36).substr(2),
+        date: new Date().toISOString().split('T')[0],
+        action: '🌱 Добавление',
+        details: `Растение добавлено в ${plant.zone}`,
+      };
+      
+      return [...prev, { ...plant, history: [historyEntry] }];
     });
     setShowPlantForm(false);
     setEditingPlant(null);
@@ -130,6 +148,28 @@ function App() {
   };
 
   const handleToggleTask = (id: string) => {
+    const task = tasks.find(t => t.id === id);
+    if (task && !task.completed) {
+      // Добавляем запись в историю растения при выполнении задачи
+      setPlants(prev => prev.map(p => {
+        if (p.id === task.plantId) {
+          const historyEntry = {
+            id: Date.now().toString(36) + Math.random().toString(36).substr(2),
+            date: new Date().toISOString().split('T')[0],
+            action: task.type === 'watering' ? '💧 Полив' : 
+                    task.type === 'fertilizing' ? '🧪 Подкормка' :
+                    task.type === 'pruning' ? '✂️ Обрезка' :
+                    task.type === 'transplanting' ? '🔄 Пересадка' : '🔍 Осмотр',
+            details: task.notes || 'Задача выполнена',
+          };
+          return {
+            ...p,
+            history: [historyEntry, ...(p.history || [])],
+          };
+        }
+        return p;
+      }));
+    }
     setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
   };
 

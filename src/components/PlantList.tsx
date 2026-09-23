@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Plant, Task, GrowthPlan, PlantType, PlantHealth, PlantStatus } from '../types';
+import { Plant, Task, GrowthPlan, PlantType, PlantHealth, PlantStatus, PlantHistoryEntry } from '../types';
 import { PLANT_TYPE_LABELS, PLANT_TYPE_EMOJIS, HEALTH_LABELS, HEALTH_COLORS, STATUS_LABELS, STATUS_COLORS } from '../data';
-import { Search, Filter, Plus, Edit2, Trash2, Eye, CheckCircle2, Clock, Sprout } from 'lucide-react';
+import { Search, Filter, Plus, Edit2, Trash2, Eye, CheckCircle2, Clock, Sprout, History, Image as ImageIcon } from 'lucide-react';
 
 interface PlantListProps {
   plants: Plant[];
@@ -256,6 +256,28 @@ export default function PlantList({ plants, tasks, growthPlans, onAdd, onEdit, o
                             <p><strong>Этапов:</strong> {growthPlan.stages.length}</p>
                             <p><strong>Выполнено:</strong> {growthPlan.stages.filter(s => s.completed).length} из {growthPlan.stages.length}</p>
                             {growthPlan.notes && <p className="mt-2 text-blue-500">{growthPlan.notes}</p>}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* История изменений */}
+                      {plant.history && plant.history.length > 0 && (
+                        <div className="mt-4">
+                          <p className="text-xs text-gray-500 mb-2 flex items-center gap-1">
+                            <History className="w-3 h-3" /> История изменений ({plant.history.length})
+                          </p>
+                          <div className="space-y-2 max-h-40 overflow-y-auto">
+                            {plant.history.slice(0, 5).map((entry: PlantHistoryEntry) => (
+                              <div key={entry.id} className="flex items-start gap-2 p-2 bg-white rounded-lg border border-gray-100 text-xs">
+                                <span className="text-gray-400 flex-shrink-0">
+                                  {new Date(entry.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })}
+                                </span>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium text-gray-700">{entry.action}</p>
+                                  {entry.details && <p className="text-gray-500 truncate">{entry.details}</p>}
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       )}

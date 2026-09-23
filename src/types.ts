@@ -2,6 +2,20 @@ export type PlantHealth = 'excellent' | 'good' | 'fair' | 'poor' | 'critical';
 export type PlantStatus = 'growing' | 'transplanting' | 'resting' | 'sold' | 'planned';
 export type PlantType = 'pine' | 'spruce' | 'fir' | 'juniper' | 'cypress' | 'thuja' | 'yew' | 'larch';
 
+export interface PlantHistoryEntry {
+  id: string;
+  date: string;
+  action: string;
+  details: string;
+}
+
+export interface PlantPhoto {
+  id: string;
+  url: string;
+  date: string;
+  caption: string;
+}
+
 export interface Plant {
   id: string;
   name: string;
@@ -18,6 +32,8 @@ export interface Plant {
   lastWatered: string;
   lastFertilized: string;
   image?: string;
+  photos?: PlantPhoto[];
+  history?: PlantHistoryEntry[];
 }
 
 export interface Zone {

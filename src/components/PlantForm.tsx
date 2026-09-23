@@ -132,6 +132,39 @@ export default function PlantForm({ plant, onSave, onCancel }: PlantFormProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Дата посадки *</label>
+              <input
+                type="date"
+                value={form.plantedDate}
+                onChange={e => updateField('plantedDate', e.target.value)}
+                required
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Возраст (лет)</label>
+              <input
+                type="number"
+                value={form.age}
+                onChange={e => updateField('age', parseInt(e.target.value) || 1)}
+                min={1}
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Высота (см)</label>
+              <input
+                type="number"
+                value={form.height}
+                onChange={e => updateField('height', parseInt(e.target.value) || 0)}
+                min={0}
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Здоровье</label>
               <select
                 value={form.health}

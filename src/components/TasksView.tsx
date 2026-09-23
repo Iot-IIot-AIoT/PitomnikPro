@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Task, Plant } from '../types';
 import { PLANT_TYPE_EMOJIS } from '../data';
-import { CheckCircle2, Circle, Plus, Calendar, Filter, Trash2, TreePine } from 'lucide-react';
+import { CheckCircle2, Circle, Plus, Calendar, Filter, Trash2, TreePine, LayoutGrid } from 'lucide-react';
 
 interface TasksViewProps {
   tasks: Task[];
@@ -14,6 +14,7 @@ interface TasksViewProps {
 export default function TasksView({ tasks, plants, onToggleTask, onAddTask, onDeleteTask }: TasksViewProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
+  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
   const [newTask, setNewTask] = useState({
     plantId: '',
     plantName: '',
@@ -177,28 +178,45 @@ export default function TasksView({ tasks, plants, onToggleTask, onAddTask, onDe
         </div>
       )}
 
-      <div className="flex items-center gap-2">
-        <Filter className="w-4 h-4 text-gray-400" />
-        <button
-          onClick={() => setFilter('all')}
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${filter === 'all' ? 'bg-emerald-100 text-emerald-700' : 'text-gray-500 hover:bg-gray-100'}`}
-        >
-          Все ({tasks.length})
-        </button>
-        <button
-          onClick={() => setFilter('pending')}
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${filter === 'pending' ? 'bg-amber-100 text-amber-700' : 'text-gray-500 hover:bg-gray-100'}`}
-        >
-          Ожидают ({pendingCount})
-        </button>
-        <button
-          onClick={() => setFilter('completed')}
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${filter === 'completed' ? 'bg-green-100 text-green-700' : 'text-gray-500 hover:bg-gray-100'}`}
-        >
-          Выполнены ({completedCount})
-        </button>
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div className="flex items-center gap-2">
+          <Filter className="w-4 h-4 text-gray-400" />
+          <button
+            onClick={() => setFilter('all')}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${filter === 'all' ? 'bg-emerald-100 text-emerald-700' : 'text-gray-500 hover:bg-gray-100'}`}
+          >
+            Все ({tasks.length})
+          </button>
+          <button
+            onClick={() => setFilter('pending')}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${filter === 'pending' ? 'bg-amber-100 text-amber-700' : 'text-gray-500 hover:bg-gray-100'}`}
+          >
+            Ожидают ({pendingCount})
+          </button>
+          <button
+            onClick={() => setFilter('completed')}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${filter === 'completed' ? 'bg-green-100 text-green-700' : 'text-gray-500 hover:bg-gray-100'}`}
+          >
+            Выполнены ({completedCount})
+          </button>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setViewMode('list')}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${viewMode === 'list' ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:bg-gray-100'}`}
+          >
+            📋 Список
+          </button>
+          <button
+            onClick={() => setViewMode('calendar')}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${viewMode === 'calendar' ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:bg-gray-100'}`}
+          >
+            📅 Календарь
+          </button>
+        </div>
       </div>
 
+      {viewMode === 'list' ? (
       <div className="space-y-2">
         {filteredTasks.map(task => {
           const config = taskTypeConfig[task.type];
@@ -276,6 +294,9 @@ export default function TasksView({ tasks, plants, onToggleTask, onAddTask, onDe
           );
         })}
       </div>
+      ) : (
+        <CalendarView tasks={filteredTasks} plants={plants} onToggleTask={onToggleTask} />
+      )}
 
       {filteredTasks.length === 0 && (
         <div className="text-center py-12">
@@ -284,6 +305,93 @@ export default function TasksView({ tasks, plants, onToggleTask, onAddTask, onDe
           <p className="text-gray-400 text-sm mt-1">Создайте новую задачу для ухода за растениями</p>
         </div>
       )}
+    </div>
+  );
+}
+
+function CalendarView({ tasks, plants, onToggleTask }: { tasks: Task[]; plants: Plant[]; onToggleTask: (id: string) => void }) {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const daysInMonth = lastDay.getDate();
+  const startingDayOfWeek = firstDay.getDay();
+  
+  const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+  
+  const getTasksForDate = (date: Date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    return tasks.filter(t => t.dueDate === dateStr);
+  };
+  
+  const days = [];
+  for (let i = 0; i < startingDayOfWeek; i++) {
+    days.push(<div key={`empty-${i}`} className="h-24 bg-gray-50"></div>);
+  }
+  
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(year, month, day);
+    const dayTasks = getTasksForDate(date);
+    const isToday = date.toDateString() === new Date().toDateString();
+    
+    days.push(
+      <div key={day} className={`h-24 p-2 border border-gray-200 ${isToday ? 'bg-blue-50' : 'bg-white'} hover:bg-gray-50 transition-colors`}>
+        <div className={`text-sm font-medium mb-1 ${isToday ? 'text-blue-600' : 'text-gray-700'}`}>
+          {day}
+        </div>
+        <div className="space-y-1 overflow-y-auto max-h-16">
+          {dayTasks.slice(0, 3).map(task => (
+            <button
+              key={task.id}
+              onClick={() => onToggleTask(task.id)}
+              className={`w-full text-left text-xs p-1 rounded truncate ${
+                task.completed ? 'bg-green-100 text-green-700 line-through' : 'bg-amber-100 text-amber-700'
+              }`}
+              title={`${task.plantName}: ${task.notes || task.type}`}
+            >
+              {task.type === 'watering' ? '💧' : task.type === 'fertilizing' ? '🧪' : task.type === 'pruning' ? '✂️' : task.type === 'transplanting' ? '🔄' : '🔍'} {task.plantName.split(' ')[0]}
+            </button>
+          ))}
+          {dayTasks.length > 3 && (
+            <div className="text-xs text-gray-500">+{dayTasks.length - 3} ещё</div>
+          )}
+        </div>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={() => setCurrentDate(new Date(year, month - 1, 1))}
+          className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg hover:bg-gray-50"
+        >
+          ← Пред.
+        </button>
+        <h3 className="text-lg font-semibold text-gray-900">
+          {monthNames[month]} {year}
+        </h3>
+        <button
+          onClick={() => setCurrentDate(new Date(year, month + 1, 1))}
+          className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg hover:bg-gray-50"
+        >
+          След. →
+        </button>
+      </div>
+      <div className="grid grid-cols-7 gap-1 mb-2">
+        {['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'].map(day => (
+          <div key={day} className="text-center text-xs font-medium text-gray-500 py-2">
+            {day}
+          </div>
+        ))}
+      </div>
+      <div className="grid grid-cols-7 gap-1">
+        {days}
+      </div>
     </div>
   );
 }
