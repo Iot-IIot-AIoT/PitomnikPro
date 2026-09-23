@@ -86,4 +86,4 @@ export interface ProfitablePlant {
   marketTips: string[];
 }
 
-export type PageView = 'dashboard' | 'plants' | 'zones' | 'tasks' | 'statistics' | 'growth-plan' | 'profitable';
+export type PageView = 'dashboard' | 'plants' | 'zones' | 'tasks' | 'statistics' | 'growth-plan' | 'profitable' | 'business';
