@@ -113,36 +113,20 @@ const CUTTING_STAGES = [
   },
 ];
 
-const DEFAULT_PLANS: GrowthPlan[] = [
-  {
-    id: 'plan-1', plantName: 'Сосна обыкновенная', plantType: 'pine', method: 'seeds',
-    startDate: '2024-09-01', stages: SEED_STAGES.map(s => ({ ...s, completed: false })),
-    notes: 'Классический цикл из семян. Стратификация 45 дней.',
-  },
-  {
-    id: 'plan-2', plantName: 'Туя западная Смарагд', plantType: 'thuja', method: 'cuttings',
-    startDate: '2024-04-15', stages: CUTTING_STAGES.map(s => ({ ...s, completed: false })),
-    notes: 'Размножение черенками. Укореняемость до 90%.',
-  },
-];
-
 interface GrowthPlanViewProps {
   plants: Plant[];
+  plans: GrowthPlan[];
+  onSavePlans: (plans: GrowthPlan[]) => void;
 }
 
-export default function GrowthPlanView({ plants }: GrowthPlanViewProps) {
-  const [plans, setPlans] = useState<GrowthPlan[]>(() => {
-    const saved = localStorage.getItem('growth-plans');
-    return saved ? JSON.parse(saved) : DEFAULT_PLANS;
-  });
+export default function GrowthPlanView({ plants, plans, onSavePlans }: GrowthPlanViewProps) {
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(plans[0]?.id || null);
   const [expandedStage, setExpandedStage] = useState<string | null>(null);
 
   const selectedPlan = plans.find(p => p.id === selectedPlanId);
 
   const savePlans = (updated: GrowthPlan[]) => {
-    setPlans(updated);
-    localStorage.setItem('growth-plans', JSON.stringify(updated));
+    onSavePlans(updated);
   };
 
   const toggleStage = (stageId: string) => {
@@ -208,19 +192,29 @@ export default function GrowthPlanView({ plants }: GrowthPlanViewProps) {
                   const relatedPlants = plants.filter(p => p.type === selectedPlan.plantType);
                   if (relatedPlants.length > 0) {
                     return (
-                      <div className="mt-3 flex items-center gap-2 flex-wrap">
-                        <span className="text-xs text-gray-500 flex items-center gap-1">
-                          <TreePine className="w-3 h-3" /> Растения этого вида:
-                        </span>
-                        {relatedPlants.map(plant => (
-                          <span key={plant.id} className="text-xs px-2 py-1 bg-emerald-50 text-emerald-700 rounded-full">
-                            {PLANT_TYPE_EMOJIS[plant.type]} {plant.name}
-                          </span>
-                        ))}
+                      <div className="mt-3 p-3 bg-emerald-50 rounded-lg border border-emerald-100">
+                        <p className="text-xs font-semibold text-emerald-700 mb-2 flex items-center gap-1">
+                          <TreePine className="w-3 h-3" /> Растения из каталога ({relatedPlants.length}):
+                        </p>
+                        <div className="space-y-2">
+                          {relatedPlants.map(plant => (
+                            <div key={plant.id} className="flex items-center gap-2 text-sm">
+                              <span>{PLANT_TYPE_EMOJIS[plant.type]}</span>
+                              <span className="font-medium text-gray-800">{plant.name}</span>
+                              <span className="text-xs text-gray-500">• {plant.variety}</span>
+                              <span className="text-xs text-gray-500">• {plant.height} см</span>
+                              <span className="text-xs px-2 py-0.5 bg-white rounded-full text-gray-600">📍 {plant.zone}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     );
                   }
-                  return null;
+                  return (
+                    <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <p className="text-xs text-gray-500">Нет растений этого вида в каталоге</p>
+                    </div>
+                  );
                 })()}
               </div>
               <div className="text-center">

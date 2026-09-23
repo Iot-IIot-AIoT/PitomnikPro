@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plant, Task, Zone, PageView } from './types';
+import { Plant, Task, Zone, GrowthPlan, PageView } from './types';
 import { initialPlants, initialZones, initialTasks } from './data';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
@@ -25,6 +25,40 @@ function App() {
   const [tasks, setTasks] = useState<Task[]>(() => {
     const saved = localStorage.getItem('conifer-tasks');
     return saved ? JSON.parse(saved) : initialTasks;
+  });
+  const [growthPlans, setGrowthPlans] = useState<GrowthPlan[]>(() => {
+    const saved = localStorage.getItem('growth-plans');
+    if (saved) return JSON.parse(saved);
+    
+    // Инициализация планов для всех типов растений
+    const SEED_STAGES = [
+      { id: 's1', order: 1, title: 'Сбор и подготовка семян', subtitle: 'Заготовка посадочного материала', icon: '🌰', duration: '2–4 недели', season: 'Осень', description: 'Сбор зрелых шишек, извлечение семян, очистка и сортировка.', steps: ['Собрать зрелые шишки с здоровых деревьев', 'Высушить 3–5 дней при комнатной температуре', 'Извлечь семена и отсортировать', 'Обработать фунгицидом'], tips: ['Собирайте с деревьев старше 10 лет', 'Семена сосны сохраняют всхожесть 2–3 года'], warnings: ['Не собирайте с больных деревьев'], temperature: '15–20°C', humidity: '40–50%', completed: false },
+      { id: 's2', order: 2, title: 'Стратификация', subtitle: 'Холодная обработка', icon: '❄️', duration: '30–90 дней', season: 'Зима', description: 'Имитация зимних условий для пробуждения зародыша.', steps: ['Замочить семена на 24–48 часов', 'Смешать с влажным песком (1:3)', 'Хранить в холодильнике при +2...+5°C', 'Проверять влажность каждые 7–10 дней'], tips: ['Сосна: 30–45 дней', 'Ель: 45–60 дней', 'Можжевельник: 90–120 дней'], warnings: ['Не допускайте пересыхания', 'При температуре выше +7°C могут заплесневеть'], temperature: '+2...+5°C', humidity: '60–70%', completed: false },
+      { id: 's3', order: 3, title: 'Посев', subtitle: 'Высадка в субстрат', icon: '🌱', duration: '1–2 дня', season: 'Весна', description: 'Посев стратифицированных семян в подготовленный субстрат.', steps: ['Подготовить субстрат: торф + песок + перлит (2:1:1)', 'Пролить тёплой водой', 'Разложить семена на расстоянии 2–3 см', 'Присыпать слоем 0.5–2 см', 'Накрыть плёнкой'], tips: ['Глубина заделки: диаметр семени × 2', 'Температура прорастания: +22...+25°C'], warnings: ['Не заглубляйте слишком сильно', 'Избегайте прямого солнца'], temperature: '+20...+25°C', humidity: '80–90%', completed: false },
+      { id: 's4', order: 4, title: 'Проращивание', subtitle: 'Уход за всходами', icon: '🌿', duration: '2–6 недель', season: 'Весна', description: 'Период от появления всходов до раскрытия семядолей.', steps: ['Снять укрытие после появления 50% всходов', 'Обеспечить свет 12–14 часов', 'Поливать из пульверизатора', 'Провести профилактику от чёрной ножки'], tips: ['Всходы появляются через 10–25 дней', 'Первые 2 недели поливайте только из пульверизатора'], warnings: ['Чёрная ножка — главный враг сеянцев', 'Пересушка губительна'], temperature: '+18...+22°C', humidity: '70–80%', completed: false },
+      { id: 's5', order: 5, title: 'Пикировка', subtitle: 'Пересадка сеянцев', icon: '🪴', duration: '3–5 дней', season: 'Весна–лето', description: 'Пересадка в индивидуальные ёмкости для развития корневой системы.', steps: ['За 2 часа обильно полить сеянцы', 'Подготовить стаканчики 200–300 мл', 'Укоротить центральный корень на 1/3', 'Высадить на ту же глубину', 'Полить раствором «Корневина»'], tips: ['Пикируйте в пасмурную погоду', 'Схема: 5×5 см на гряде'], warnings: ['Не допускайте подсыхания корней', 'Не заглубляйте корневую шейку'], temperature: '+16...+20°C', humidity: '75–85%', completed: false },
+      { id: 's6', order: 6, title: 'Доращивание', subtitle: 'Формирование корневой системы', icon: '🌲', duration: '1–2 года', season: 'Круглогодично', description: 'Основной период роста. Формируется корневая система.', steps: ['Высадить в школку с шагом 15×20 см', 'Мульчировать корой 3–5 см', 'Поливать 1–2 раза в неделю', 'Подкармливать каждые 3–4 недели', 'Подготовить к зиме'], tips: ['Прирост первого года: 3–7 см', 'Осенью только калий и фосфор'], warnings: ['Не перекармливайте азотом осенью', 'Защитите от весенних ожогов'], completed: false },
+      { id: 's7', order: 7, title: 'Пересадка в контейнеры', subtitle: 'Подготовка к продаже', icon: '📦', duration: '1 день', season: 'Весна или осень', description: 'Перевалка в торговые контейнеры для продажи.', steps: ['Выбрать контейнер по размеру', 'На дно дренаж 2–3 см', 'Перевалить с комом земли', 'Заполнить субстратом', 'Полить и притенить на 7–10 дней'], tips: ['C2 (2 л) — для 15–30 см', 'C5 (5 л) — для 30–60 см'], warnings: ['Не повреждайте земляной ком', 'Зимой контейнеры промерзают'], completed: false },
+      { id: 's8', order: 8, title: 'Реализация', subtitle: 'Продажа или высадка', icon: '🏡', duration: 'По мере готовности', season: 'Круглогодично', description: 'Финальный этап — продажа готового саженца.', steps: ['Оценить качество', 'Составить паспорт растения', 'Сфотографировать', 'Подготовить рекомендации по уходу'], tips: ['Оптимальный возраст: 3–5 лет', 'Саженцы с ЗКС приживаются в 3 раза лучше'], warnings: ['Не продавайте больные растения'], completed: false },
+    ];
+
+    const CUTTING_STAGES = [
+      { id: 'c1', order: 1, title: 'Заготовка черенков', subtitle: 'Нарезка материала', icon: '✂️', duration: '1 день', season: 'Весна или осень', description: 'Нарезка полуодревесневших черенков с материнских растений.', steps: ['Нарезать черенки 10–15 см с «пяткой»', 'Удалить хвою в нижней трети', 'Обработать стимулятором корнеобразования', 'Поместить в субстрат'], tips: ['Черенки с «пяткой» укореняются в 2 раза лучше', 'Нарезайте рано утром'], warnings: ['Не используйте верхушечные побеги'], temperature: '+15...+20°C', humidity: '90–100%', completed: false },
+      { id: 'c2', order: 2, title: 'Укоренение', subtitle: 'Формирование корней', icon: '🌱', duration: '1–6 месяцев', season: 'Круглогодично', description: 'Создание оптимальных условий для образования корней.', steps: ['Подготовить субстрат: перлит + торф (1:1)', 'Высадить под углом 45°', 'Создать туманообразующую установку', 'Поддерживать +20...+24°C', 'Опрыскивать 3–5 раз в день'], tips: ['Можжевельник: 1–2 месяца', 'Туя: 2–3 месяца', 'Нижний подогрев ускоряет на 30%'], warnings: ['Перелив вызывает загнивание', 'При +28°C черенки перегреваются'], temperature: '+20...+24°C', humidity: '90–100%', completed: false },
+      { id: 'c3', order: 3, title: 'Доращивание', subtitle: 'Адаптация и рост', icon: '🌿', duration: '1–2 года', season: 'Круглогодично', description: 'Адаптация к обычным условиям и интенсивный рост.', steps: ['Постепенно снять укрытие', 'Пересадить в стаканчики', 'Поливать умеренно', 'Подкармливать слабым раствором', 'Высадить в школку'], tips: ['Первый месяц — самый критичный', 'Прирост: 3–10 см'], warnings: ['Резкое снятие укрытия — шок'], temperature: '+15...+22°C', humidity: '70–80%', completed: false },
+      { id: 'c4', order: 4, title: 'Реализация', subtitle: 'Подготовка к продаже', icon: '🌲', duration: '1–2 года', season: 'Круглогодично', description: 'Финальное формирование и подготовка к продаже.', steps: ['Пересадить в контейнер', 'Начать формирующую обрезку', 'Оценить товарные качества', 'Подготовить к реализации'], tips: ['Оптимальный возраст: 2–4 года', 'Маркируйте каждый сорт'], warnings: ['Проверьте, что корни оплели ком'], completed: false },
+    ];
+
+    return [
+      { id: 'plan-pine', plantName: 'Сосна', plantType: 'pine' as const, method: 'seeds' as const, startDate: '2024-09-01', stages: SEED_STAGES.map(s => ({ ...s })), notes: 'Стратификация 45 дней. Прирост 5-10 см/год.' },
+      { id: 'plan-spruce', plantName: 'Ель', plantType: 'spruce' as const, method: 'seeds' as const, startDate: '2024-09-15', stages: SEED_STAGES.map(s => ({ ...s })), notes: 'Стратификация 60 дней. Прирост 7-15 см/год.' },
+      { id: 'plan-juniper', plantName: 'Можжевельник', plantType: 'juniper' as const, method: 'cuttings' as const, startDate: '2024-04-01', stages: CUTTING_STAGES.map(s => ({ ...s })), notes: 'Черенкование весной. Укоренение 1-2 месяца. Прирост 15-20 см/год.' },
+      { id: 'plan-thuja', plantName: 'Туя', plantType: 'thuja' as const, method: 'cuttings' as const, startDate: '2024-04-15', stages: CUTTING_STAGES.map(s => ({ ...s })), notes: 'Черенкование весной. Укореняемость до 90%. Прирост 20-30 см/год.' },
+      { id: 'plan-fir', plantName: 'Пихта', plantType: 'fir' as const, method: 'seeds' as const, startDate: '2024-10-01', stages: SEED_STAGES.map(s => ({ ...s })), notes: 'Стратификация 60 дней. Медленный рост в первые 2 года.' },
+      { id: 'plan-cypress', plantName: 'Кипарисовик', plantType: 'cypress' as const, method: 'cuttings' as const, startDate: '2024-05-01', stages: CUTTING_STAGES.map(s => ({ ...s })), notes: 'Летнее черенкование. Укоренение 2-3 месяца.' },
+      { id: 'plan-yew', plantName: 'Тис', plantType: 'yew' as const, method: 'cuttings' as const, startDate: '2024-08-01', stages: CUTTING_STAGES.map(s => ({ ...s })), notes: 'Осеннее черенкование. Очень медленный рост.' },
+      { id: 'plan-larch', plantName: 'Лиственница', plantType: 'larch' as const, method: 'seeds' as const, startDate: '2024-09-20', stages: SEED_STAGES.map(s => ({ ...s })), notes: 'Стратификация 30 дней. Быстрый рост 30-50 см/год.' },
+    ];
   });
 
   const [showPlantForm, setShowPlantForm] = useState(false);
@@ -101,6 +135,7 @@ function App() {
           <PlantList
             plants={plants}
             tasks={tasks}
+            growthPlans={growthPlans}
             onAdd={() => { setEditingPlant(null); setShowPlantForm(true); }}
             onEdit={handleEditPlant}
             onDelete={handleDeletePlant}
@@ -121,7 +156,7 @@ function App() {
       case 'statistics':
         return <Statistics plants={plants} />;
       case 'growth-plan':
-        return <GrowthPlanView plants={plants} />;
+        return <GrowthPlanView plants={plants} plans={growthPlans} onSavePlans={setGrowthPlans} />;
       case 'profitable':
         return <ProfitablePlantsView />;
       case 'business':

@@ -1,17 +1,18 @@
 import { useState } from 'react';
-import { Plant, Task, PlantType, PlantHealth, PlantStatus } from '../types';
+import { Plant, Task, GrowthPlan, PlantType, PlantHealth, PlantStatus } from '../types';
 import { PLANT_TYPE_LABELS, PLANT_TYPE_EMOJIS, HEALTH_LABELS, HEALTH_COLORS, STATUS_LABELS, STATUS_COLORS } from '../data';
-import { Search, Filter, Plus, Edit2, Trash2, Eye, CheckCircle2, Clock } from 'lucide-react';
+import { Search, Filter, Plus, Edit2, Trash2, Eye, CheckCircle2, Clock, Sprout } from 'lucide-react';
 
 interface PlantListProps {
   plants: Plant[];
   tasks: Task[];
+  growthPlans: GrowthPlan[];
   onAdd: () => void;
   onEdit: (plant: Plant) => void;
   onDelete: (id: string) => void;
 }
 
-export default function PlantList({ plants, tasks, onAdd, onEdit, onDelete }: PlantListProps) {
+export default function PlantList({ plants, tasks, growthPlans, onAdd, onEdit, onDelete }: PlantListProps) {
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<PlantType | ''>('');
   const [filterHealth, setFilterHealth] = useState<PlantHealth | ''>('');
@@ -199,33 +200,51 @@ export default function PlantList({ plants, tasks, onAdd, onEdit, onDelete }: Pl
                 {/* Связанные задачи */}
                 {(() => {
                   const plantTasks = tasks.filter(t => t.plantId === plant.id);
-                  if (plantTasks.length > 0) {
-                    return (
-                      <div className="mt-4">
-                        <p className="text-xs text-gray-500 mb-2 flex items-center gap-1">
-                          <Clock className="w-3 h-3" /> Задачи ({plantTasks.length})
-                        </p>
-                        <div className="space-y-2">
-                          {plantTasks.map(task => (
-                            <div key={task.id} className="flex items-center gap-2 p-2 bg-white rounded-lg border border-gray-100">
-                              {task.completed ? (
-                                <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                              ) : (
-                                <Clock className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <p className={`text-sm ${task.completed ? 'line-through text-gray-400' : 'text-gray-700'}`}>
-                                  {task.type === 'watering' ? '💧' : task.type === 'fertilizing' ? '🧪' : task.type === 'pruning' ? '✂️' : task.type === 'transplanting' ? '🔄' : '🔍'} {task.notes || task.type}
-                                </p>
-                                <p className="text-xs text-gray-500">{new Date(task.dueDate).toLocaleDateString('ru-RU')}</p>
+                  const growthPlan = growthPlans.find(p => p.plantType === plant.type);
+                  
+                  return (
+                    <>
+                      {plantTasks.length > 0 && (
+                        <div className="mt-4">
+                          <p className="text-xs text-gray-500 mb-2 flex items-center gap-1">
+                            <Clock className="w-3 h-3" /> Задачи ({plantTasks.length})
+                          </p>
+                          <div className="space-y-2">
+                            {plantTasks.map(task => (
+                              <div key={task.id} className="flex items-center gap-2 p-2 bg-white rounded-lg border border-gray-100">
+                                {task.completed ? (
+                                  <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                                ) : (
+                                  <Clock className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <p className={`text-sm ${task.completed ? 'line-through text-gray-400' : 'text-gray-700'}`}>
+                                    {task.type === 'watering' ? '💧' : task.type === 'fertilizing' ? '🧪' : task.type === 'pruning' ? '✂️' : task.type === 'transplanting' ? '🔄' : '🔍'} {task.notes || task.type}
+                                  </p>
+                                  <p className="text-xs text-gray-500">{new Date(task.dueDate).toLocaleDateString('ru-RU')}</p>
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  }
-                  return null;
+                      )}
+                      
+                      {/* План выращивания */}
+                      {growthPlan && (
+                        <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                          <p className="text-xs font-semibold text-blue-700 mb-2 flex items-center gap-1">
+                            <Sprout className="w-3 h-3" /> План выращивания
+                          </p>
+                          <div className="space-y-1 text-xs text-blue-600">
+                            <p><strong>Метод:</strong> {growthPlan.method === 'seeds' ? '🌰 Из семян' : '✂️ Черенкование'}</p>
+                            <p><strong>Этапов:</strong> {growthPlan.stages.length}</p>
+                            <p><strong>Выполнено:</strong> {growthPlan.stages.filter(s => s.completed).length} из {growthPlan.stages.length}</p>
+                            {growthPlan.notes && <p className="mt-2 text-blue-500">{growthPlan.notes}</p>}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  );
                 })()}
               </div>
             )}
