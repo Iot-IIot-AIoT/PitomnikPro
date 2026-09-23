@@ -33,12 +33,15 @@ function App() {
   
   const [growthPlans, setGrowthPlans] = useState<GrowthPlan[]>(() => {
     const saved = localStorage.getItem('growth-plans');
-    if (saved) return JSON.parse(saved);
+    const savedPlans: GrowthPlan[] = saved ? JSON.parse(saved) : [];
     
     // Создаём планы для всех начальных растений
-    return initialPlants.map(plant => 
+    const initialPlans = initialPlants.map(plant => 
       createGrowthPlanFromTemplate(plant.id, plant.type, plant.plantedDate)
     );
+    
+    // Если есть сохранённые планы, используем их, иначе начальные
+    return savedPlans.length > 0 ? savedPlans : initialPlans;
   });
 
   const [showPlantForm, setShowPlantForm] = useState(false);
@@ -66,6 +69,31 @@ function App() {
       ...zone,
       currentCount: plants.filter(p => p.zone === zone.name).length,
     })));
+  }, [plants]);
+
+  // Синхронизация планов с растениями
+  useEffect(() => {
+    setGrowthPlans(prevPlans => {
+      // Удаляем планы для несуществующих растений
+      const validPlans = prevPlans.filter(plan => 
+        plants.some(plant => plant.id === plan.plantId)
+      );
+      
+      // Находим растения без плана
+      const plantsWithoutPlan = plants.filter(plant => 
+        !validPlans.some(plan => plan.plantId === plant.id)
+      );
+      
+      // Создаём планы для растений без плана
+      if (plantsWithoutPlan.length > 0) {
+        const newPlans = plantsWithoutPlan.map(plant => 
+          createGrowthPlanFromTemplate(plant.id, plant.type, plant.plantedDate)
+        );
+        return [...validPlans, ...newPlans];
+      }
+      
+      return validPlans;
+    });
   }, [plants]);
 
   const handleSavePlant = (plant: Plant) => {

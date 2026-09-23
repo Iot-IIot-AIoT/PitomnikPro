@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Plant, Task, GrowthPlan, PlantType, PlantHealth } from '../types';
-import { PLANT_TYPE_LABELS, PLANT_TYPE_EMOJIS, HEALTH_LABELS, HEALTH_COLORS } from '../data';
+import { Plant, Task, GrowthPlan, PlantType, PlantHealth, PlantStatus } from '../types';
+import { PLANT_TYPE_LABELS, PLANT_TYPE_EMOJIS, HEALTH_LABELS, HEALTH_COLORS, STATUS_LABELS, STATUS_COLORS } from '../data';
 import { Search, Filter, Plus, Edit2, Trash2, Eye, CheckCircle2, Clock, Sprout } from 'lucide-react';
 
 interface PlantListProps {
@@ -16,6 +16,7 @@ export default function PlantList({ plants, tasks, growthPlans, onAdd, onEdit, o
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<PlantType | ''>('');
   const [filterHealth, setFilterHealth] = useState<PlantHealth | ''>('');
+  const [filterStatus, setFilterStatus] = useState<PlantStatus | ''>('');
   const [filterZone, setFilterZone] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
@@ -28,8 +29,9 @@ export default function PlantList({ plants, tasks, growthPlans, onAdd, onEdit, o
       p.variety.toLowerCase().includes(search.toLowerCase());
     const matchType = !filterType || p.type === filterType;
     const matchHealth = !filterHealth || p.health === filterHealth;
+    const matchStatus = !filterStatus || p.status === filterStatus;
     const matchZone = !filterZone || p.zone === filterZone;
-    return matchSearch && matchType && matchHealth && matchZone;
+    return matchSearch && matchType && matchHealth && matchStatus && matchZone;
   });
 
   return (
@@ -104,6 +106,16 @@ export default function PlantList({ plants, tasks, growthPlans, onAdd, onEdit, o
                 <option key={z} value={z}>{z}</option>
               ))}
             </select>
+            <select
+              value={filterStatus}
+              onChange={e => setFilterStatus(e.target.value as PlantStatus | '')}
+              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+            >
+              <option value="">Все статусы</option>
+              {Object.entries(STATUS_LABELS).map(([key, label]) => (
+                <option key={key} value={key}>{label}</option>
+              ))}
+            </select>
           </div>
         )}
       </div>
@@ -130,6 +142,9 @@ export default function PlantList({ plants, tasks, growthPlans, onAdd, onEdit, o
                 <div className="flex items-center gap-3 mt-1 flex-wrap">
                   <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: `${HEALTH_COLORS[plant.health]}20`, color: HEALTH_COLORS[plant.health] }}>
                     {HEALTH_LABELS[plant.health]}
+                  </span>
+                  <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: `${STATUS_COLORS[plant.status]}20`, color: STATUS_COLORS[plant.status] }}>
+                    {STATUS_LABELS[plant.status]}
                   </span>
                   {(() => {
                     const growthPlan = growthPlans.find(p => p.plantId === plant.id);
