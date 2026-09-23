@@ -1,137 +1,28 @@
 import { useState } from 'react';
-import { GrowthPlan, Plant, PlantType } from '../types';
-import { PLANT_TYPE_LABELS, PLANT_TYPE_EMOJIS } from '../data';
-import { CheckCircle2, Circle, Plus, Trash2, Clock, Calendar, Target, AlertTriangle, Lightbulb, Thermometer, Droplets, ChevronDown, ChevronRight, TreePine } from 'lucide-react';
-
-const SEED_STAGES = [
-  {
-    id: 's1', order: 1, title: 'Сбор и подготовка семян', subtitle: 'Заготовка посадочного материала',
-    icon: '🌰', duration: '2–4 недели', season: 'Осень',
-    description: 'Сбор зрелых шишек, извлечение семян, очистка и сортировка.',
-    steps: ['Собрать зрелые шишки с здоровых деревьев', 'Высушить 3–5 дней при комнатной температуре', 'Извлечь семена и отсортировать', 'Обработать фунгицидом'],
-    tips: ['Собирайте с деревьев старше 10 лет', 'Семена сосны сохраняют всхожесть 2–3 года'],
-    warnings: ['Не собирайте с больных деревьев'],
-    temperature: '15–20°C', humidity: '40–50%',
-  },
-  {
-    id: 's2', order: 2, title: 'Стратификация', subtitle: 'Холодная обработка',
-    icon: '❄️', duration: '30–90 дней', season: 'Зима',
-    description: 'Имитация зимних условий для пробуждения зародыша.',
-    steps: ['Замочить семена на 24–48 часов', 'Смешать с влажным песком (1:3)', 'Хранить в холодильнике при +2...+5°C', 'Проверять влажность каждые 7–10 дней'],
-    tips: ['Сосна: 30–45 дней', 'Ель: 45–60 дней', 'Можжевельник: 90–120 дней'],
-    warnings: ['Не допускайте пересыхания', 'При температуре выше +7°C могут заплесневеть'],
-    temperature: '+2...+5°C', humidity: '60–70%',
-  },
-  {
-    id: 's3', order: 3, title: 'Посев', subtitle: 'Высадка в субстрат',
-    icon: '🌱', duration: '1–2 дня', season: 'Весна',
-    description: 'Посев стратифицированных семян в подготовленный субстрат.',
-    steps: ['Подготовить субстрат: торф + песок + перлит (2:1:1)', 'Пролить тёплой водой', 'Разложить семена на расстоянии 2–3 см', 'Присыпать слоем 0.5–2 см', 'Накрыть плёнкой'],
-    tips: ['Глубина заделки: диаметр семени × 2', 'Температура прорастания: +22...+25°C'],
-    warnings: ['Не заглубляйте слишком сильно', 'Избегайте прямого солнца'],
-    temperature: '+20...+25°C', humidity: '80–90%',
-  },
-  {
-    id: 's4', order: 4, title: 'Проращивание', subtitle: 'Уход за всходами',
-    icon: '🌿', duration: '2–6 недель', season: 'Весна',
-    description: 'Период от появления всходов до раскрытия семядолей.',
-    steps: ['Снять укрытие после появления 50% всходов', 'Обеспечить свет 12–14 часов', 'Поливать из пульверизатора', 'Провести профилактику от чёрной ножки'],
-    tips: ['Всходы появляются через 10–25 дней', 'Первые 2 недели поливайте только из пульверизатора'],
-    warnings: ['Чёрная ножка — главный враг сеянцев', 'Пересушка губительна'],
-    temperature: '+18...+22°C', humidity: '70–80%',
-  },
-  {
-    id: 's5', order: 5, title: 'Пикировка', subtitle: 'Пересадка сеянцев',
-    icon: '🪴', duration: '3–5 дней', season: 'Весна–лето',
-    description: 'Пересадка в индивидуальные ёмкости для развития корневой системы.',
-    steps: ['За 2 часа обильно полить сеянцы', 'Подготовить стаканчики 200–300 мл', 'Укоротить центральный корень на 1/3', 'Высадить на ту же глубину', 'Полить раствором «Корневина»'],
-    tips: ['Пикируйте в пасмурную погоду', 'Схема: 5×5 см на гряде'],
-    warnings: ['Не допускайте подсыхания корней', 'Не заглубляйте корневую шейку'],
-    temperature: '+16...+20°C', humidity: '75–85%',
-  },
-  {
-    id: 's6', order: 6, title: 'Доращивание', subtitle: 'Формирование корневой системы',
-    icon: '🌲', duration: '1–2 года', season: 'Круглогодично',
-    description: 'Основной период роста. Формируется корневая система.',
-    steps: ['Высадить в школку с шагом 15×20 см', 'Мульчировать корой 3–5 см', 'Поливать 1–2 раза в неделю', 'Подкармливать каждые 3–4 недели', 'Подготовить к зиме'],
-    tips: ['Прирост первого года: 3–7 см', 'Осенью только калий и фосфор'],
-    warnings: ['Не перекармливайте азотом осенью', 'Защитите от весенних ожогов'],
-  },
-  {
-    id: 's7', order: 7, title: 'Пересадка в контейнеры', subtitle: 'Подготовка к продаже',
-    icon: '📦', duration: '1 день', season: 'Весна или осень',
-    description: 'Перевалка в торговые контейнеры для продажи.',
-    steps: ['Выбрать контейнер по размеру', 'На дно дренаж 2–3 см', 'Перевалить с комом земли', 'Заполнить субстратом', 'Полить и притенить на 7–10 дней'],
-    tips: ['C2 (2 л) — для 15–30 см', 'C5 (5 л) — для 30–60 см'],
-    warnings: ['Не повреждайте земляной ком', 'Зимой контейнеры промерзают'],
-  },
-  {
-    id: 's8', order: 8, title: 'Реализация', subtitle: 'Продажа или высадка',
-    icon: '🏡', duration: 'По мере готовности', season: 'Круглогодично',
-    description: 'Финальный этап — продажа готового саженца.',
-    steps: ['Оценить качество', 'Составить паспорт растения', 'Сфотографировать', 'Подготовить рекомендации по уходу'],
-    tips: ['Оптимальный возраст: 3–5 лет', 'Саженцы с ЗКС приживаются в 3 раза лучше'],
-    warnings: ['Не продавайте больные растения'],
-  },
-];
-
-const CUTTING_STAGES = [
-  {
-    id: 'c1', order: 1, title: 'Заготовка черенков', subtitle: 'Нарезка материала',
-    icon: '✂️', duration: '1 день', season: 'Весна или осень',
-    description: 'Нарезка полуодревесневших черенков с материнских растений.',
-    steps: ['Нарезать черенки 10–15 см с «пяткой»', 'Удалить хвою в нижней трети', 'Обработать стимулятором корнеобразования', 'Поместить в субстрат'],
-    tips: ['Черенки с «пяткой» укореняются в 2 раза лучше', 'Нарезайте рано утром'],
-    warnings: ['Не используйте верхушечные побеги'],
-    temperature: '+15...+20°C', humidity: '90–100%',
-  },
-  {
-    id: 'c2', order: 2, title: 'Укоренение', subtitle: 'Формирование корней',
-    icon: '🌱', duration: '1–6 месяцев', season: 'Круглогодично',
-    description: 'Создание оптимальных условий для образования корней.',
-    steps: ['Подготовить субстрат: перлит + торф (1:1)', 'Высадить под углом 45°', 'Создать туманообразующую установку', 'Поддерживать +20...+24°C', 'Опрыскивать 3–5 раз в день'],
-    tips: ['Можжевельник: 1–2 месяца', 'Туя: 2–3 месяца', 'Нижний подогрев ускоряет на 30%'],
-    warnings: ['Перелив вызывает загнивание', 'При +28°C черенки перегреваются'],
-    temperature: '+20...+24°C', humidity: '90–100%',
-  },
-  {
-    id: 'c3', order: 3, title: 'Доращивание', subtitle: 'Адаптация и рост',
-    icon: '🌿', duration: '1–2 года', season: 'Круглогодично',
-    description: 'Адаптация к обычным условиям и интенсивный рост.',
-    steps: ['Постепенно снять укрытие', 'Пересадить в стаканчики', 'Поливать умеренно', 'Подкармливать слабым раствором', 'Высадить в школку'],
-    tips: ['Первый месяц — самый критичный', 'Прирост: 3–10 см'],
-    warnings: ['Резкое снятие укрытия — шок'],
-    temperature: '+15...+22°C', humidity: '70–80%',
-  },
-  {
-    id: 'c4', order: 4, title: 'Реализация', subtitle: 'Подготовка к продаже',
-    icon: '🌲', duration: '1–2 года', season: 'Круглогодично',
-    description: 'Финальное формирование и подготовка к продаже.',
-    steps: ['Пересадить в контейнер', 'Начать формирующую обрезку', 'Оценить товарные качества', 'Подготовить к реализации'],
-    tips: ['Оптимальный возраст: 2–4 года', 'Маркируйте каждый сорт'],
-    warnings: ['Проверьте, что корни оплели ком'],
-  },
-];
+import { Plant, GrowthPlan } from '../types';
+import { PLANT_TYPE_EMOJIS } from '../data';
+import { CheckCircle2, Circle, Clock, Calendar, Target, AlertTriangle, Lightbulb, Thermometer, Droplets, ChevronDown, ChevronRight, TreePine, Sprout } from 'lucide-react';
 
 interface GrowthPlanViewProps {
   plants: Plant[];
-  plans: GrowthPlan[];
-  onSavePlans: (plans: GrowthPlan[]) => void;
+  growthPlans: GrowthPlan[];
+  onSaveGrowthPlans: (plans: GrowthPlan[]) => void;
 }
 
-export default function GrowthPlanView({ plants, plans, onSavePlans }: GrowthPlanViewProps) {
-  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(plans[0]?.id || null);
+export default function GrowthPlanView({ plants, growthPlans, onSaveGrowthPlans }: GrowthPlanViewProps) {
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(growthPlans[0]?.id || null);
   const [expandedStage, setExpandedStage] = useState<string | null>(null);
 
-  const selectedPlan = plans.find(p => p.id === selectedPlanId);
+  const selectedPlan = growthPlans.find(p => p.id === selectedPlanId);
+  const selectedPlant = selectedPlan ? plants.find(p => p.id === selectedPlan.plantId) : null;
 
   const savePlans = (updated: GrowthPlan[]) => {
-    onSavePlans(updated);
+    onSaveGrowthPlans(updated);
   };
 
   const toggleStage = (stageId: string) => {
     if (!selectedPlan) return;
-    const updated = plans.map(p => {
+    const updated = growthPlans.map(p => {
       if (p.id !== selectedPlan.id) return p;
       return { ...p, stages: p.stages.map(s => s.id === stageId ? { ...s, completed: !s.completed } : s) };
     });
@@ -146,76 +37,95 @@ export default function GrowthPlanView({ plants, plans, onSavePlans }: GrowthPla
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">План выращивания</h1>
-        <p className="text-gray-500 mt-1">Поэтапное руководство от семян до реализации</p>
+        <h1 className="text-3xl font-bold text-gray-900">Планы выращивания</h1>
+        <p className="text-gray-500 mt-1">Индивидуальные планы для каждого растения</p>
       </div>
 
       {/* Plans List */}
-      <div className="flex gap-3 overflow-x-auto pb-2">
-        {plans.map(plan => {
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        {growthPlans.map(plan => {
+          const plant = plants.find(p => p.id === plan.plantId);
+          if (!plant) return null;
+          
           const progress = getProgress(plan);
           const isSelected = plan.id === selectedPlanId;
+          
           return (
             <button
               key={plan.id}
               onClick={() => setSelectedPlanId(plan.id)}
-              className={`flex-shrink-0 p-4 rounded-xl border-2 transition-all min-w-[200px] text-left ${
+              className={`p-4 rounded-xl border-2 transition-all text-left ${
                 isSelected ? 'border-emerald-500 bg-emerald-50 shadow-md' : 'border-gray-100 bg-white hover:border-gray-200'
               }`}
             >
-              <p className="text-sm font-semibold text-gray-900 truncate">{plan.plantName}</p>
-              <p className="text-xs text-gray-500 mb-2">
-                {plan.method === 'seeds' ? '🌰 Семена' : '✂️ Черенки'} • {PLANT_TYPE_LABELS[plan.plantType]}
-              </p>
-              <div className="w-full bg-gray-100 rounded-full h-2 mb-1">
-                <div className="bg-emerald-500 h-2 rounded-full transition-all" style={{ width: `${progress}%` }} />
+              <div className="flex items-start gap-3 mb-3">
+                <div className="text-3xl">{PLANT_TYPE_EMOJIS[plant.type]}</div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-gray-900 truncate">{plant.name}</p>
+                  <p className="text-xs text-gray-500 truncate">{plant.variety}</p>
+                </div>
               </div>
-              <span className="text-xs text-gray-500">{progress}%</span>
+              
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">
+                    {plan.method === 'seeds' ? '🌰 Семена' : '✂️ Черенки'}
+                  </span>
+                  <span className="text-gray-500">📍 {plant.zone}</span>
+                </div>
+                
+                <div>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-gray-500">Прогресс</span>
+                    <span className="font-semibold text-gray-700">{progress}%</span>
+                  </div>
+                  <div className="w-full bg-gray-100 rounded-full h-2">
+                    <div 
+                      className="bg-emerald-500 h-2 rounded-full transition-all" 
+                      style={{ width: `${progress}%` }} 
+                    />
+                  </div>
+                </div>
+                
+                <div className="text-xs text-gray-500">
+                  {plan.stages.filter(s => s.completed).length} из {plan.stages.length} этапов
+                </div>
+              </div>
             </button>
           );
         })}
       </div>
 
       {/* Selected Plan */}
-      {selectedPlan && (
+      {selectedPlan && selectedPlant && (
         <div className="space-y-4">
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">{selectedPlan.plantName}</h2>
-                <p className="text-sm text-gray-500 mt-1">
-                  {selectedPlan.method === 'seeds' ? '🌰 Выращивание из семян' : '✂️ Размножение черенками'} •
-                  Начало: {new Date(selectedPlan.startDate).toLocaleDateString('ru-RU')}
-                </p>
-                {/* Связанные растения */}
-                {(() => {
-                  const relatedPlants = plants.filter(p => p.type === selectedPlan.plantType);
-                  if (relatedPlants.length > 0) {
-                    return (
-                      <div className="mt-3 p-3 bg-emerald-50 rounded-lg border border-emerald-100">
-                        <p className="text-xs font-semibold text-emerald-700 mb-2 flex items-center gap-1">
-                          <TreePine className="w-3 h-3" /> Растения из каталога ({relatedPlants.length}):
-                        </p>
-                        <div className="space-y-2">
-                          {relatedPlants.map(plant => (
-                            <div key={plant.id} className="flex items-center gap-2 text-sm">
-                              <span>{PLANT_TYPE_EMOJIS[plant.type]}</span>
-                              <span className="font-medium text-gray-800">{plant.name}</span>
-                              <span className="text-xs text-gray-500">• {plant.variety}</span>
-                              <span className="text-xs text-gray-500">• {plant.height} см</span>
-                              <span className="text-xs px-2 py-0.5 bg-white rounded-full text-gray-600">📍 {plant.zone}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  }
-                  return (
-                    <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                      <p className="text-xs text-gray-500">Нет растений этого вида в каталоге</p>
-                    </div>
-                  );
-                })()}
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-4xl">{PLANT_TYPE_EMOJIS[selectedPlant.type]}</span>
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900">{selectedPlant.name}</h2>
+                    <p className="text-sm text-gray-500">{selectedPlant.latinName}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 text-sm text-gray-600 mt-3">
+                  <span className="flex items-center gap-1">
+                    <Sprout className="w-4 h-4" />
+                    {selectedPlan.method === 'seeds' ? 'Выращивание из семян' : 'Размножение черенками'}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-4 h-4" />
+                    Начало: {new Date(selectedPlan.startDate).toLocaleDateString('ru-RU')}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <TreePine className="w-4 h-4" />
+                    {selectedPlant.height} см • {selectedPlant.age} лет
+                  </span>
+                </div>
+                {selectedPlan.notes && (
+                  <p className="text-sm text-gray-600 mt-3 bg-gray-50 px-3 py-2 rounded-lg">{selectedPlan.notes}</p>
+                )}
               </div>
               <div className="text-center">
                 <div className="relative w-20 h-20">

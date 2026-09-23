@@ -132,7 +132,7 @@ export default function PlantList({ plants, tasks, growthPlans, onAdd, onEdit, o
                     {HEALTH_LABELS[plant.health]}
                   </span>
                   {(() => {
-                    const growthPlan = growthPlans.find(p => p.plantType === plant.type);
+                    const growthPlan = growthPlans.find(p => p.plantId === plant.id);
                     if (growthPlan) {
                       const completedStages = growthPlan.stages.filter(s => s.completed).length;
                       const totalStages = growthPlan.stages.length;
@@ -201,7 +201,7 @@ export default function PlantList({ plants, tasks, growthPlans, onAdd, onEdit, o
                 {/* Связанные задачи */}
                 {(() => {
                   const plantTasks = tasks.filter(t => t.plantId === plant.id);
-                  const growthPlan = growthPlans.find(p => p.plantType === plant.type);
+                  const growthPlan = growthPlans.find(p => p.plantId === plant.id);
                   
                   return (
                     <>

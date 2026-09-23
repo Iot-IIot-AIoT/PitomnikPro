@@ -62,11 +62,17 @@ export interface GrowthStage {
 
 export interface GrowthPlan {
   id: string;
-  plantName: string;
-  plantType: PlantType;
+  plantId: string; // Привязка к конкретному растению
   method: 'seeds' | 'cuttings';
   startDate: string;
   stages: GrowthStage[];
+  notes: string;
+}
+
+export interface GrowthPlanTemplate {
+  plantType: PlantType;
+  method: 'seeds' | 'cuttings';
+  defaultStages: Omit<GrowthStage, 'completed'>[];
   notes: string;
 }
 
