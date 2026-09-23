@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Plant, Task, Zone, GrowthPlan, PageView } from './types';
 import { initialPlants, initialZones, initialTasks } from './data';
 import { createGrowthPlanFromTemplate } from './growthPlanTemplates';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import PlantList from './components/PlantList';
@@ -12,9 +13,28 @@ import Statistics from './components/Statistics';
 import GrowthPlanView from './components/GrowthPlanView';
 import BusinessAdviceView from './components/BusinessAdviceView';
 import BashkortostanMarketView from './components/BashkortostanMarketView';
+import LoginPage from './components/LoginPage';
+import ProfilePage from './components/ProfilePage';
 
-function App() {
+function AppContent() {
+  const { isAuthenticated } = useAuth();
   const [currentPage, setCurrentPage] = useState<PageView>('dashboard');
+
+  // Создаем демо-пользователя при первом запуске
+  useEffect(() => {
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    if (users.length === 0) {
+      const demoUser = {
+        id: 'demo-user',
+        email: 'demo@pitomnik.ru',
+        password: 'demo123',
+        name: 'Демо Пользователь',
+        role: 'admin',
+        createdAt: new Date().toISOString(),
+      };
+      localStorage.setItem('users', JSON.stringify([demoUser]));
+    }
+  }, []);
   
   const [plants, setPlants] = useState<Plant[]>(() => {
     const saved = localStorage.getItem('conifer-plants');
@@ -253,10 +273,16 @@ function App() {
         return <BashkortostanMarketView />;
       case 'statistics':
         return <Statistics plants={plants} />;
+      case 'profile':
+        return <ProfilePage />;
       default:
         return <Dashboard plants={plants} zones={zones} tasks={tasks} />;
     }
   };
+
+  if (!isAuthenticated) {
+    return <LoginPage />;
+  }
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
@@ -311,6 +337,14 @@ function App() {
         </div>
       )}
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

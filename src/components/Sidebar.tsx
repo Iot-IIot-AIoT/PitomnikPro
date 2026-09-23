@@ -1,5 +1,6 @@
 import { PageView } from '../types';
-import { LayoutDashboard, TreePine, MapPin, ClipboardList, BarChart3, Menu, X, Sprout, DollarSign, Lightbulb, Map } from 'lucide-react';
+import { LayoutDashboard, TreePine, MapPin, ClipboardList, BarChart3, Menu, X, Sprout, DollarSign, Lightbulb, Map, User } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import { useState } from 'react';
 
 interface SidebarProps {
@@ -11,6 +12,7 @@ interface SidebarProps {
 
 export default function Sidebar({ currentPage, onPageChange, plantCount, taskCount }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user } = useAuth();
 
   const navItems = [
     { id: 'dashboard' as PageView, label: 'Панель', icon: LayoutDashboard },
@@ -70,6 +72,22 @@ export default function Sidebar({ currentPage, onPageChange, plantCount, taskCou
           <p className="text-sm font-medium text-emerald-800">🌿 Совет дня</p>
           <p className="text-xs text-emerald-600 mt-1">Зимой сократите полив большинства растений. Проверяйте влажность почвы перед поливом.</p>
         </div>
+        
+        {user && (
+          <button
+            onClick={() => { onPageChange('profile'); setMobileOpen(false); }}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all bg-gray-50 hover:bg-gray-100"
+          >
+            <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+              {user.name.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex-1 text-left">
+              <p className="text-gray-900">{user.name}</p>
+              <p className="text-xs text-gray-500">{user.email}</p>
+            </div>
+          </button>
+        )}
+        
         <button
           onClick={() => {
             if (confirm('Сбросить все данные? Это действие нельзя отменить.')) {

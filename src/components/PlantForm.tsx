@@ -1,7 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Plant, PlantType, PlantHealth, PlantStatus } from '../types';
+import { Plant, PlantType, PlantHealth, PlantStatus, PropagationMethod } from '../types';
 import { PLANT_TYPE_LABELS, HEALTH_LABELS, STATUS_LABELS } from '../data';
 import { X, Save } from 'lucide-react';
+
+const PROPAGATION_METHOD_LABELS: Record<PropagationMethod, string> = {
+  seeds: '🌰 Семена',
+  cuttings: '✂️ Черенки',
+  grafting: '🔗 Прививка',
+  division: '🌱 Деление',
+  layering: '🌿 Отводки',
+};
 
 interface PlantFormProps {
   plant?: Plant | null;
@@ -24,6 +32,7 @@ export default function PlantForm({ plant, onSave, onCancel }: PlantFormProps) {
     notes: '',
     lastWatered: new Date().toISOString().split('T')[0],
     lastFertilized: new Date().toISOString().split('T')[0],
+    propagationMethod: 'seeds',
   });
 
   useEffect(() => {
@@ -50,6 +59,7 @@ export default function PlantForm({ plant, onSave, onCancel }: PlantFormProps) {
       lastWatered: form.lastWatered || new Date().toISOString().split('T')[0],
       lastFertilized: form.lastFertilized || new Date().toISOString().split('T')[0],
       financials: form.financials && form.financials.costPerUnit > 0 ? form.financials : undefined,
+      propagationMethod: form.propagationMethod as PropagationMethod,
     };
     onSave(newPlant);
   };
@@ -119,6 +129,21 @@ export default function PlantForm({ plant, onSave, onCancel }: PlantFormProps) {
               />
             </div>
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Способ размножения</label>
+              <select
+                value={form.propagationMethod}
+                onChange={e => updateField('propagationMethod', e.target.value)}
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+              >
+                {Object.entries(PROPAGATION_METHOD_LABELS).map(([key, label]) => (
+                  <option key={key} value={key}>{label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Зона</label>
               <select
                 value={form.zone}
@@ -127,6 +152,8 @@ export default function PlantForm({ plant, onSave, onCancel }: PlantFormProps) {
               >
                 <option value="Зона А">Зона А</option>
                 <option value="Зона Б">Зона Б</option>
+                <option value="Зона В">Зона В</option>
+                <option value="Зона Г">Зона Г</option>
               </select>
             </div>
           </div>

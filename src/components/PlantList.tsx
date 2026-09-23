@@ -209,6 +209,14 @@ export default function PlantList({ plants, tasks, growthPlans, onAdd, onEdit, o
                   <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: `${STATUS_COLORS[plant.status]}20`, color: STATUS_COLORS[plant.status] }}>
                     {STATUS_LABELS[plant.status]}
                   </span>
+                  {plant.propagationMethod && (
+                    <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-purple-100 text-purple-700">
+                      {plant.propagationMethod === 'seeds' ? '🌰 Семена' : 
+                       plant.propagationMethod === 'cuttings' ? '✂️ Черенки' :
+                       plant.propagationMethod === 'grafting' ? '🔗 Прививка' :
+                       plant.propagationMethod === 'division' ? '🌱 Деление' : '🌿 Отводки'}
+                    </span>
+                  )}
                   {(() => {
                     const growthPlan = growthPlans.find(p => p.plantId === plant.id);
                     if (growthPlan) {
@@ -218,7 +226,7 @@ export default function PlantList({ plants, tasks, growthPlans, onAdd, onEdit, o
                       return (
                         <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700 flex items-center gap-1">
                           <Sprout className="w-3 h-3" />
-                          {growthPlan.method === 'seeds' ? '🌰 Семена' : '✂️ Черенки'} • {progress}%
+                          План: {progress}%
                         </span>
                       );
                     }

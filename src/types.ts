@@ -3,6 +3,15 @@ export type PlantStatus = 'growing' | 'transplanting' | 'resting' | 'sold' | 'pl
 export type PlantType = 
   | 'pine' | 'spruce' | 'fir' | 'juniper' | 'cypress' | 'thuja' | 'yew' | 'larch'
   | 'blueberry' | 'honeysuckle' | 'hydrangea' | 'spirea' | 'lavender' | 'apple' | 'other';
+export type PropagationMethod = 'seeds' | 'cuttings' | 'grafting' | 'division' | 'layering';
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: 'admin' | 'user';
+  createdAt: string;
+}
 
 export interface PlantHistoryEntry {
   id: string;
@@ -46,6 +55,53 @@ export interface Plant {
   photos?: PlantPhoto[];
   history?: PlantHistoryEntry[];
   financials?: PlantFinancials;
+  propagationMethod?: PropagationMethod;
+}
+
+export interface Customer {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+  type: 'individual' | 'business' | 'designer' | 'developer';
+  source: string;
+  notes: string;
+  createdAt: string;
+  totalOrders: number;
+  totalSpent: number;
+}
+
+export interface Order {
+  id: string;
+  customerId: string;
+  customerName: string;
+  items: OrderItem[];
+  totalAmount: number;
+  status: 'new' | 'processing' | 'ready' | 'delivered' | 'cancelled';
+  paymentStatus: 'pending' | 'paid' | 'partial';
+  createdAt: string;
+  deliveryDate: string;
+  notes: string;
+}
+
+export interface OrderItem {
+  plantId: string;
+  plantName: string;
+  quantity: number;
+  price: number;
+}
+
+export interface Deal {
+  id: string;
+  title: string;
+  customerName: string;
+  value: number;
+  stage: 'lead' | 'qualified' | 'proposal' | 'negotiation' | 'won' | 'lost';
+  probability: number;
+  expectedCloseDate: string;
+  createdAt: string;
+  notes: string;
 }
 
 export interface Zone {
@@ -108,6 +164,7 @@ export interface ProfitablePlant {
   id: string;
   name: string;
   latinName: string;
+  variety: string;
   category: 'conifer' | 'berry' | 'fruit' | 'ornamental';
   difficulty: 'easy' | 'medium' | 'hard';
   growthTime: string;
@@ -124,4 +181,4 @@ export interface ProfitablePlant {
   marketTips: string[];
 }
 
-export type PageView = 'dashboard' | 'plants' | 'zones' | 'tasks' | 'statistics' | 'growth-plan' | 'profitable' | 'business' | 'bashkortostan-market';
+export type PageView = 'dashboard' | 'plants' | 'zones' | 'tasks' | 'statistics' | 'growth-plan' | 'profitable' | 'business' | 'bashkortostan-market' | 'profile';
