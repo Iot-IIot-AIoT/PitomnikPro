@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Plant, Task, Zone } from '../types';
 import { PLANT_TYPE_LABELS, PLANT_TYPE_EMOJIS, HEALTH_COLORS, STATUS_LABELS, STATUS_COLORS } from '../data';
 import { PlantType } from '../types';
@@ -148,7 +149,7 @@ export default function Dashboard({ plants, zones, tasks }: DashboardProps) {
 }
 
 function StatCard({ icon, label, value, sublabel, color, iconBg }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   value: number | string;
   sublabel: string;
