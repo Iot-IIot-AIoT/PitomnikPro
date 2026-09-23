@@ -32,8 +32,8 @@ export default function Sidebar({ currentPage, onPageChange, plantCount, taskCou
             <span className="text-white text-lg">🌲</span>
           </div>
           <div>
-            <h1 className="font-bold text-gray-900 text-lg leading-tight">ХвойныйУчёт</h1>
-            <p className="text-xs text-gray-500">Питомник хвойных</p>
+            <h1 className="font-bold text-gray-900 text-lg leading-tight">ПитомникПро</h1>
+            <p className="text-xs text-gray-500">Управление питомником</p>
           </div>
         </div>
       </div>
@@ -71,7 +71,7 @@ export default function Sidebar({ currentPage, onPageChange, plantCount, taskCou
       <div className="p-4 border-t border-gray-100">
         <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl p-4">
           <p className="text-sm font-medium text-emerald-800">🌿 Совет дня</p>
-          <p className="text-xs text-emerald-600 mt-1">Хвойные растения не нуждаются в частом поливе зимой. Проверяйте влажность почвы перед поливом.</p>
+          <p className="text-xs text-emerald-600 mt-1">Зимой сократите полив большинства растений. Проверяйте влажность почвы перед поливом — перелив опаснее пересушки.</p>
         </div>
       </div>
     </div>

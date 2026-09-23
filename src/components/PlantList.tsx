@@ -37,7 +37,7 @@ export default function PlantList({ plants, onAdd, onEdit, onDelete }: PlantList
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Каталог растений</h1>
-          <p className="text-gray-500 mt-1">Управление коллекцией хвойных</p>
+          <p className="text-gray-500 mt-1">Управление коллекцией растений</p>
         </div>
         <button
           onClick={onAdd}

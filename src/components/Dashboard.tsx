@@ -31,7 +31,7 @@ export default function Dashboard({ plants, zones, tasks }: DashboardProps) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Панель управления</h1>
-          <p className="text-gray-500 mt-1">Обзор вашего хвойного питомника</p>
+          <p className="text-gray-500 mt-1">Обзор вашего питомника</p>
         </div>
         <div className="text-right">
           <p className="text-sm text-gray-500">Сегодня</p>
