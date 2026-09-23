@@ -86,4 +86,50 @@ export interface ProfitablePlant {
   marketTips: string[];
 }
 
-export type PageView = 'dashboard' | 'plants' | 'zones' | 'tasks' | 'statistics' | 'growth-plan' | 'profitable' | 'business';
+export interface Customer {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+  type: 'individual' | 'business' | 'designer' | 'developer';
+  source: string;
+  notes: string;
+  createdAt: string;
+  totalOrders: number;
+  totalSpent: number;
+}
+
+export interface Order {
+  id: string;
+  customerId: string;
+  customerName: string;
+  items: OrderItem[];
+  totalAmount: number;
+  status: 'new' | 'processing' | 'ready' | 'delivered' | 'cancelled';
+  paymentStatus: 'pending' | 'paid' | 'partial';
+  createdAt: string;
+  deliveryDate: string;
+  notes: string;
+}
+
+export interface OrderItem {
+  plantId: string;
+  plantName: string;
+  quantity: number;
+  price: number;
+}
+
+export interface Deal {
+  id: string;
+  title: string;
+  customerName: string;
+  value: number;
+  stage: 'lead' | 'qualified' | 'proposal' | 'negotiation' | 'won' | 'lost';
+  probability: number;
+  expectedCloseDate: string;
+  createdAt: string;
+  notes: string;
+}
+
+export type PageView = 'dashboard' | 'plants' | 'zones' | 'tasks' | 'statistics' | 'growth-plan' | 'profitable' | 'business' | 'crm';

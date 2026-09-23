@@ -11,6 +11,7 @@ import Statistics from './components/Statistics';
 import GrowthPlanView from './components/GrowthPlanView';
 import ProfitablePlantsView from './components/ProfitablePlantsView';
 import BusinessAdviceView from './components/BusinessAdviceView';
+import CRMView from './components/CRMView';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<PageView>('dashboard');
@@ -126,6 +127,8 @@ function App() {
         return <ProfitablePlantsView />;
       case 'business':
         return <BusinessAdviceView />;
+      case 'crm':
+        return <CRMView />;
       default:
         return <Dashboard plants={plants} zones={zones} tasks={tasks} />;
     }
