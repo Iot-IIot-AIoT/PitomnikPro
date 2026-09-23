@@ -64,11 +64,22 @@ export default function Sidebar({ currentPage, onPageChange, plantCount, taskCou
         })}
       </nav>
 
-      <div className="p-4 border-t border-gray-100">
+      <div className="p-4 border-t border-gray-100 space-y-3">
         <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl p-4">
           <p className="text-sm font-medium text-emerald-800">🌿 Совет дня</p>
           <p className="text-xs text-emerald-600 mt-1">Зимой сократите полив большинства растений. Проверяйте влажность почвы перед поливом.</p>
         </div>
+        <button
+          onClick={() => {
+            if (confirm('Сбросить все данные? Это действие нельзя отменить.')) {
+              localStorage.clear();
+              window.location.reload();
+            }
+          }}
+          className="w-full px-3 py-2 text-xs text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+        >
+          🔄 Сбросить данные
+        </button>
       </div>
     </div>
   );

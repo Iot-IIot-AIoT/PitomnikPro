@@ -17,7 +17,32 @@ function App() {
   
   const [plants, setPlants] = useState<Plant[]>(() => {
     const saved = localStorage.getItem('conifer-plants');
-    return saved ? JSON.parse(saved) : initialPlants;
+    if (!saved) return initialPlants;
+    
+    try {
+      const savedPlants: Plant[] = JSON.parse(saved);
+      
+      // Миграция: проверяем валидность типов растений
+      const validTypes = ['pine', 'spruce', 'fir', 'juniper', 'cypress', 'thuja', 'yew', 'larch', 
+                          'blueberry', 'honeysuckle', 'hydrangea', 'spirea', 'lavender', 'apple', 'other'];
+      
+      const migratedPlants = savedPlants.map(plant => {
+        // Если тип растения невалидный, меняем на 'other'
+        if (!validTypes.includes(plant.type)) {
+          return { ...plant, type: 'other' as any };
+        }
+        return plant;
+      });
+      
+      // Добавляем новые растения из initialPlants
+      const existingIds = new Set(migratedPlants.map(p => p.id));
+      const newPlants = initialPlants.filter(p => !existingIds.has(p.id));
+      
+      return [...migratedPlants, ...newPlants];
+    } catch (e) {
+      console.error('Ошибка загрузки данных:', e);
+      return initialPlants;
+    }
   });
   
   const [zones, setZones] = useState<Zone[]>(() => {

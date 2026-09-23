@@ -159,14 +159,67 @@ export const GROWTH_PLAN_TEMPLATES: GrowthPlanTemplate[] = [
     defaultStages: SEED_STAGES_TEMPLATE,
     notes: 'Стратификация 30 дней. Быстрый рост 30-50 см/год.',
   },
+  // Ягодные культуры
+  {
+    plantType: 'blueberry',
+    method: 'cuttings',
+    defaultStages: CUTTING_STAGES_TEMPLATE,
+    notes: 'Черенкование летом. Укоренение 2-3 месяца. Нужна кислая почва.',
+  },
+  {
+    plantType: 'honeysuckle',
+    method: 'cuttings',
+    defaultStages: CUTTING_STAGES_TEMPLATE,
+    notes: 'Зелёное черенкование в июне. Укореняемость 90%.',
+  },
+  // Декоративные
+  {
+    plantType: 'hydrangea',
+    method: 'cuttings',
+    defaultStages: CUTTING_STAGES_TEMPLATE,
+    notes: 'Летнее черенкование. Укореняемость 95%. Быстрый рост.',
+  },
+  {
+    plantType: 'spirea',
+    method: 'cuttings',
+    defaultStages: CUTTING_STAGES_TEMPLATE,
+    notes: 'Зелёное черенкование. Укореняемость 95%+. Неприхотлива.',
+  },
+  {
+    plantType: 'lavender',
+    method: 'cuttings',
+    defaultStages: CUTTING_STAGES_TEMPLATE,
+    notes: 'Черенкование весной или летом. Нужен хороший дренаж.',
+  },
+  // Плодовые
+  {
+    plantType: 'apple',
+    method: 'seeds',
+    defaultStages: SEED_STAGES_TEMPLATE,
+    notes: 'Прививка на подвой. Плодоношение на 2-3 год.',
+  },
+  // Другие
+  {
+    plantType: 'other',
+    method: 'cuttings',
+    defaultStages: CUTTING_STAGES_TEMPLATE,
+    notes: 'Универсальный план выращивания.',
+  },
 ];
 
 // Функция создания плана из шаблона для конкретного растения
 export function createGrowthPlanFromTemplate(plantId: string, plantType: PlantType, startDate: string): GrowthPlan {
-  const template = GROWTH_PLAN_TEMPLATES.find(t => t.plantType === plantType);
+  // Ищем шаблон для конкретного типа
+  let template = GROWTH_PLAN_TEMPLATES.find(t => t.plantType === plantType);
   
+  // Если шаблон не найден, используем шаблон 'other' как fallback
   if (!template) {
-    throw new Error(`Шаблон плана для типа ${plantType} не найден`);
+    template = GROWTH_PLAN_TEMPLATES.find(t => t.plantType === 'other');
+  }
+  
+  // Если даже fallback не найден, используем первый доступный шаблон
+  if (!template) {
+    template = GROWTH_PLAN_TEMPLATES[0];
   }
 
   return {
