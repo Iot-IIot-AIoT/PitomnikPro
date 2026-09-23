@@ -1,0 +1,212 @@
+import { useState } from 'react';
+import { Plant, PlantType, PlantHealth, PlantStatus } from '../types';
+import { PLANT_TYPE_LABELS, PLANT_TYPE_EMOJIS, HEALTH_LABELS, HEALTH_COLORS, STATUS_LABELS, STATUS_COLORS } from '../data';
+import { Search, Filter, Plus, Edit2, Trash2, Eye } from 'lucide-react';
+
+interface PlantListProps {
+  plants: Plant[];
+  onAdd: () => void;
+  onEdit: (plant: Plant) => void;
+  onDelete: (id: string) => void;
+}
+
+export default function PlantList({ plants, onAdd, onEdit, onDelete }: PlantListProps) {
+  const [search, setSearch] = useState('');
+  const [filterType, setFilterType] = useState<PlantType | ''>('');
+  const [filterHealth, setFilterHealth] = useState<PlantHealth | ''>('');
+  const [filterStatus, setFilterStatus] = useState<PlantStatus | ''>('');
+  const [filterZone, setFilterZone] = useState('');
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
+
+  const zones = [...new Set(plants.map(p => p.zone))];
+
+  const filtered = plants.filter(p => {
+    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.latinName.toLowerCase().includes(search.toLowerCase()) ||
+      p.variety.toLowerCase().includes(search.toLowerCase());
+    const matchType = !filterType || p.type === filterType;
+    const matchHealth = !filterHealth || p.health === filterHealth;
+    const matchStatus = !filterStatus || p.status === filterStatus;
+    const matchZone = !filterZone || p.zone === filterZone;
+    return matchSearch && matchType && matchHealth && matchStatus && matchZone;
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Каталог растений</h1>
+          <p className="text-gray-500 mt-1">Управление коллекцией растений</p>
+        </div>
+        <button
+          onClick={onAdd}
+          className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors shadow-sm"
+        >
+          <Plus className="w-5 h-5" />
+          Добавить растение
+        </button>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+        <div className="flex gap-3 items-center">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Поиск по названию, виду, сорту..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
+            />
+          </div>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`flex items-center gap-2 px-4 py-2.5 border rounded-lg transition-colors ${
+              showFilters ? 'border-emerald-500 text-emerald-600 bg-emerald-50' : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            <Filter className="w-5 h-5" />
+            Фильтры
+          </button>
+        </div>
+
+        {showFilters && (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-4 pt-4 border-t border-gray-100">
+            <select
+              value={filterType}
+              onChange={e => setFilterType(e.target.value as PlantType | '')}
+              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+            >
+              <option value="">Все виды</option>
+              {Object.entries(PLANT_TYPE_LABELS).map(([key, label]) => (
+                <option key={key} value={key}>{label}</option>
+              ))}
+            </select>
+            <select
+              value={filterHealth}
+              onChange={e => setFilterHealth(e.target.value as PlantHealth | '')}
+              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+            >
+              <option value="">Все состояния</option>
+              {Object.entries(HEALTH_LABELS).map(([key, label]) => (
+                <option key={key} value={key}>{label}</option>
+              ))}
+            </select>
+            <select
+              value={filterStatus}
+              onChange={e => setFilterStatus(e.target.value as PlantStatus | '')}
+              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+            >
+              <option value="">Все статусы</option>
+              {Object.entries(STATUS_LABELS).map(([key, label]) => (
+                <option key={key} value={key}>{label}</option>
+              ))}
+            </select>
+            <select
+              value={filterZone}
+              onChange={e => setFilterZone(e.target.value)}
+              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+            >
+              <option value="">Все зоны</option>
+              {zones.map(z => (
+                <option key={z} value={z}>{z}</option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-gray-500">Найдено: <span className="font-semibold text-gray-700">{filtered.length}</span> растений</p>
+      </div>
+
+      <div className="space-y-3">
+        {filtered.map(plant => (
+          <div
+            key={plant.id}
+            className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow"
+          >
+            <div className="p-4 flex items-center gap-4">
+              <div className="text-3xl w-12 h-12 flex items-center justify-center bg-emerald-50 rounded-xl">
+                {PLANT_TYPE_EMOJIS[plant.type]}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="font-semibold text-gray-900 truncate">{plant.name}</h3>
+                  <span className="text-xs text-gray-400 italic">{plant.latinName}</span>
+                </div>
+                <div className="flex items-center gap-3 mt-1 flex-wrap">
+                  <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: `${HEALTH_COLORS[plant.health]}20`, color: HEALTH_COLORS[plant.health] }}>
+                    {HEALTH_LABELS[plant.health]}
+                  </span>
+                  <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: `${STATUS_COLORS[plant.status]}20`, color: STATUS_COLORS[plant.status] }}>
+                    {STATUS_LABELS[plant.status]}
+                  </span>
+                  <span className="text-xs text-gray-500">📍 {plant.zone}</span>
+                  <span className="text-xs text-gray-500">📏 {plant.height} см</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setExpandedId(expandedId === plant.id ? null : plant.id)}
+                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                  title="Подробнее"
+                >
+                  <Eye className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => onEdit(plant)}
+                  className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  title="Редактировать"
+                >
+                  <Edit2 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => onDelete(plant.id)}
+                  className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  title="Удалить"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {expandedId === plant.id && (
+              <div className="px-4 pb-4 pt-2 border-t border-gray-100 bg-gray-50">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Сорт</p>
+                    <p className="text-sm font-medium text-gray-800">{plant.variety}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Дата посадки</p>
+                    <p className="text-sm font-medium text-gray-800">{new Date(plant.plantedDate).toLocaleDateString('ru-RU')}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Последний полив</p>
+                    <p className="text-sm font-medium text-gray-800">{new Date(plant.lastWatered).toLocaleDateString('ru-RU')}</p>
+                  </div>
+                </div>
+                {plant.notes && (
+                  <div className="mt-3">
+                    <p className="text-xs text-gray-500 mb-1">Заметки</p>
+                    <p className="text-sm text-gray-700 bg-white p-3 rounded-lg border border-gray-100">{plant.notes}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {filtered.length === 0 && (
+        <div className="text-center py-12">
+          <div className="text-5xl mb-4">🌲</div>
+          <p className="text-gray-500 text-lg">Растения не найдены</p>
+          <p className="text-gray-400 text-sm mt-1">Попробуйте изменить параметры поиска</p>
+        </div>
+      )}
+    </div>
+  );
+}
