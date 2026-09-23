@@ -1,5 +1,5 @@
 import { PageView } from '../types';
-import { LayoutDashboard, TreePine, MapPin, ClipboardList, BarChart3, Menu, X, Sprout, DollarSign, Lightbulb } from 'lucide-react';
+import { LayoutDashboard, TreePine, MapPin, ClipboardList, BarChart3, Menu, X, Sprout, DollarSign, Lightbulb, Map } from 'lucide-react';
 import { useState } from 'react';
 
 interface SidebarProps {
@@ -19,6 +19,7 @@ export default function Sidebar({ currentPage, onPageChange, plantCount, taskCou
     { id: 'tasks' as PageView, label: 'Задачи', icon: ClipboardList, badge: taskCount },
     { id: 'growth-plan' as PageView, label: 'План выращивания', icon: Sprout },
     { id: 'business' as PageView, label: 'Бизнес-советы', icon: Lightbulb },
+    { id: 'bashkortostan-market' as PageView, label: 'Идеи для Башкирии', icon: Map },
     { id: 'statistics' as PageView, label: 'Статистика', icon: BarChart3 },
   ];
 

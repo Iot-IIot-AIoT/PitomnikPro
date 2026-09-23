@@ -11,6 +11,7 @@ import TasksView from './components/TasksView';
 import Statistics from './components/Statistics';
 import GrowthPlanView from './components/GrowthPlanView';
 import BusinessAdviceView from './components/BusinessAdviceView';
+import BashkortostanMarketView from './components/BashkortostanMarketView';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<PageView>('dashboard');
@@ -248,6 +249,8 @@ function App() {
         );
       case 'business':
         return <BusinessAdviceView />;
+      case 'bashkortostan-market':
+        return <BashkortostanMarketView />;
       case 'statistics':
         return <Statistics plants={plants} />;
       default:
