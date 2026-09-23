@@ -18,7 +18,6 @@ export default function Sidebar({ currentPage, onPageChange, plantCount, taskCou
     { id: 'zones' as PageView, label: 'Зоны', icon: MapPin },
     { id: 'tasks' as PageView, label: 'Задачи', icon: ClipboardList, badge: taskCount },
     { id: 'growth-plan' as PageView, label: 'План выращивания', icon: Sprout },
-    { id: 'profitable' as PageView, label: 'Прибыльные культуры', icon: DollarSign },
     { id: 'business' as PageView, label: 'Бизнес-советы', icon: Lightbulb },
     { id: 'statistics' as PageView, label: 'Статистика', icon: BarChart3 },
   ];

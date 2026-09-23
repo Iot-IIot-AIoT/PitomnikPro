@@ -10,7 +10,6 @@ import ZonesView from './components/ZonesView';
 import TasksView from './components/TasksView';
 import Statistics from './components/Statistics';
 import GrowthPlanView from './components/GrowthPlanView';
-import ProfitablePlantsView from './components/ProfitablePlantsView';
 import BusinessAdviceView from './components/BusinessAdviceView';
 
 function App() {
@@ -222,8 +221,6 @@ function App() {
             onSaveGrowthPlans={handleSaveGrowthPlans}
           />
         );
-      case 'profitable':
-        return <ProfitablePlantsView />;
       case 'business':
         return <BusinessAdviceView />;
       case 'statistics':

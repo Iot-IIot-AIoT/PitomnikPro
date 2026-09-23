@@ -16,6 +16,15 @@ export interface PlantPhoto {
   caption: string;
 }
 
+export interface PlantFinancials {
+  costPerUnit: number;
+  sellingPrice: number;
+  profitPerUnit: number;
+  roi: number;
+  paybackMonths: number;
+  demand: 'low' | 'medium' | 'high' | 'very-high';
+}
+
 export interface Plant {
   id: string;
   name: string;
@@ -34,6 +43,7 @@ export interface Plant {
   image?: string;
   photos?: PlantPhoto[];
   history?: PlantHistoryEntry[];
+  financials?: PlantFinancials;
 }
 
 export interface Zone {

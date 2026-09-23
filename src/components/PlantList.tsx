@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Plant, Task, GrowthPlan, PlantType, PlantHealth, PlantStatus, PlantHistoryEntry } from '../types';
 import { PLANT_TYPE_LABELS, PLANT_TYPE_EMOJIS, HEALTH_LABELS, HEALTH_COLORS, STATUS_LABELS, STATUS_COLORS } from '../data';
-import { Search, Filter, Plus, Edit2, Trash2, Eye, CheckCircle2, Clock, Sprout, History, Image as ImageIcon } from 'lucide-react';
+import { Search, Filter, Plus, Edit2, Trash2, Eye, CheckCircle2, Clock, Sprout, History, TrendingUp, DollarSign } from 'lucide-react';
 
 interface PlantListProps {
   plants: Plant[];
@@ -18,21 +18,34 @@ export default function PlantList({ plants, tasks, growthPlans, onAdd, onEdit, o
   const [filterHealth, setFilterHealth] = useState<PlantHealth | ''>('');
   const [filterStatus, setFilterStatus] = useState<PlantStatus | ''>('');
   const [filterZone, setFilterZone] = useState('');
+  const [filterProfitable, setFilterProfitable] = useState(false);
+  const [sortBy, setSortBy] = useState<'name' | 'roi' | 'profit'>('name');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
   const zones = [...new Set(plants.map(p => p.zone))];
 
-  const filtered = plants.filter(p => {
-    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.latinName.toLowerCase().includes(search.toLowerCase()) ||
-      p.variety.toLowerCase().includes(search.toLowerCase());
-    const matchType = !filterType || p.type === filterType;
-    const matchHealth = !filterHealth || p.health === filterHealth;
-    const matchStatus = !filterStatus || p.status === filterStatus;
-    const matchZone = !filterZone || p.zone === filterZone;
-    return matchSearch && matchType && matchHealth && matchStatus && matchZone;
-  });
+  const filtered = plants
+    .filter(p => {
+      const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
+        p.latinName.toLowerCase().includes(search.toLowerCase()) ||
+        p.variety.toLowerCase().includes(search.toLowerCase());
+      const matchType = !filterType || p.type === filterType;
+      const matchHealth = !filterHealth || p.health === filterHealth;
+      const matchStatus = !filterStatus || p.status === filterStatus;
+      const matchZone = !filterZone || p.zone === filterZone;
+      const matchProfitable = !filterProfitable || p.financials;
+      return matchSearch && matchType && matchHealth && matchStatus && matchZone && matchProfitable;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'roi' && a.financials && b.financials) {
+        return b.financials.roi - a.financials.roi;
+      }
+      if (sortBy === 'profit' && a.financials && b.financials) {
+        return b.financials.profitPerUnit - a.financials.profitPerUnit;
+      }
+      return a.name.localeCompare(b.name);
+    });
 
   return (
     <div className="space-y-4">
@@ -74,7 +87,7 @@ export default function PlantList({ plants, tasks, growthPlans, onAdd, onEdit, o
         </div>
 
         {showFilters && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-4 pt-4 border-t border-gray-100">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mt-4 pt-4 border-t border-gray-100">
             <select
               value={filterType}
               onChange={e => setFilterType(e.target.value as PlantType | '')}
@@ -85,6 +98,17 @@ export default function PlantList({ plants, tasks, growthPlans, onAdd, onEdit, o
                 <option key={key} value={key}>{label}</option>
               ))}
             </select>
+            <button
+              onClick={() => setFilterProfitable(!filterProfitable)}
+              className={`flex items-center justify-center gap-2 px-3 py-2 border rounded-lg text-sm transition-colors ${
+                filterProfitable 
+                  ? 'border-emerald-500 text-emerald-700 bg-emerald-50' 
+                  : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <DollarSign className="w-4 h-4" />
+              Только прибыльные
+            </button>
             <select
               value={filterHealth}
               onChange={e => setFilterHealth(e.target.value as PlantHealth | '')}
@@ -116,12 +140,29 @@ export default function PlantList({ plants, tasks, growthPlans, onAdd, onEdit, o
                 <option key={key} value={key}>{label}</option>
               ))}
             </select>
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value as 'name' | 'roi' | 'profit')}
+              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+            >
+              <option value="name">По названию</option>
+              <option value="roi">По ROI</option>
+              <option value="profit">По прибыли</option>
+            </select>
           </div>
         )}
       </div>
 
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500">Найдено: <span className="font-semibold text-gray-700">{filtered.length}</span> растений</p>
+        <p className="text-sm text-gray-500">
+          Найдено: <span className="font-semibold text-gray-700">{filtered.length}</span> растений
+          {filterProfitable && <span className="ml-2 text-emerald-600">💰 Только прибыльные</span>}
+        </p>
+        {filterProfitable && (
+          <div className="text-sm text-emerald-600 font-medium">
+            Средняя прибыль: {Math.round(filtered.reduce((sum, p) => sum + (p.financials?.profitPerUnit || 0), 0) / filtered.filter(p => p.financials).length) || 0} ₽
+          </div>
+        )}
       </div>
 
       <div className="space-y-3">
@@ -163,6 +204,12 @@ export default function PlantList({ plants, tasks, growthPlans, onAdd, onEdit, o
                   })()}
                   <span className="text-xs text-gray-500">📍 {plant.zone}</span>
                   <span className="text-xs text-gray-500">📏 {plant.height} см</span>
+                  {plant.financials && (
+                    <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-emerald-100 text-emerald-700 flex items-center gap-1">
+                      <TrendingUp className="w-3 h-3" />
+                      ROI {plant.financials.roi}% • {plant.financials.profitPerUnit}₽
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-1">
@@ -210,6 +257,46 @@ export default function PlantList({ plants, tasks, growthPlans, onAdd, onEdit, o
                   <div className="mt-3">
                     <p className="text-xs text-gray-500 mb-1">Заметки</p>
                     <p className="text-sm text-gray-700 bg-white p-3 rounded-lg border border-gray-100">{plant.notes}</p>
+                  </div>
+                )}
+
+                {/* Финансовые показатели */}
+                {plant.financials && (
+                  <div className="mt-4 p-4 bg-gradient-to-br from-emerald-50 to-green-50 rounded-lg border border-emerald-200">
+                    <p className="text-sm font-semibold text-emerald-800 mb-3 flex items-center gap-2">
+                      <DollarSign className="w-4 h-4" /> Финансовые показатели
+                    </p>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                      <div>
+                        <p className="text-xs text-emerald-600 mb-1">Себестоимость</p>
+                        <p className="text-lg font-bold text-gray-900">{plant.financials.costPerUnit} ₽</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-emerald-600 mb-1">Цена продажи</p>
+                        <p className="text-lg font-bold text-blue-600">{plant.financials.sellingPrice} ₽</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-emerald-600 mb-1">Прибыль</p>
+                        <p className="text-lg font-bold text-emerald-600">{plant.financials.profitPerUnit} ₽</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-emerald-600 mb-1">ROI</p>
+                        <p className="text-lg font-bold text-purple-600">{plant.financials.roi}%</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-emerald-600 mb-1">Окупаемость</p>
+                        <p className="text-lg font-bold text-amber-600">{plant.financials.paybackMonths} мес</p>
+                      </div>
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-emerald-200">
+                      <p className="text-xs text-emerald-700">
+                        💡 Спрос: <span className="font-semibold">
+                          {plant.financials.demand === 'very-high' ? 'Очень высокий 🔥' : 
+                           plant.financials.demand === 'high' ? 'Высокий 📈' : 
+                           plant.financials.demand === 'medium' ? 'Средний 📊' : 'Низкий 📉'}
+                        </span>
+                      </p>
+                    </div>
                   </div>
                 )}
                 
