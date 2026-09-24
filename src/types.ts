@@ -181,4 +181,4 @@ export interface ProfitablePlant {
   marketTips: string[];
 }
 
-export type PageView = 'dashboard' | 'plants' | 'zones' | 'tasks' | 'statistics' | 'growth-plan' | 'profitable' | 'business' | 'bashkortostan-market' | 'profile' | 'mvp-strategy';
+export type PageView = 'dashboard' | 'plants' | 'zones' | 'tasks' | 'statistics' | 'growth-plan' | 'profitable' | 'business' | 'bashkortostan-market' | 'profile' | 'mvp-strategy' | 'production';

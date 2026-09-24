@@ -14,6 +14,7 @@ import GrowthPlanView from './components/GrowthPlanView';
 import BusinessAdviceView from './components/BusinessAdviceView';
 import BashkortostanMarketView from './components/BashkortostanMarketView';
 import MVPStrategyView from './components/MVPStrategyView';
+import ProductionGuideView from './components/ProductionGuideView';
 import LoginPage from './components/LoginPage';
 import ProfilePage from './components/ProfilePage';
 
@@ -274,6 +275,8 @@ function AppContent() {
         return <BashkortostanMarketView />;
       case 'mvp-strategy':
         return <MVPStrategyView />;
+      case 'production':
+        return <ProductionGuideView />;
       case 'statistics':
         return <Statistics plants={plants} />;
       case 'profile':
