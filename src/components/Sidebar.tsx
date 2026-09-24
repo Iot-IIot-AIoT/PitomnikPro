@@ -1,5 +1,5 @@
 import { PageView } from '../types';
-import { LayoutDashboard, TreePine, MapPin, ClipboardList, BarChart3, Menu, X, Sprout, DollarSign, Lightbulb, Map, User } from 'lucide-react';
+import { LayoutDashboard, TreePine, MapPin, ClipboardList, BarChart3, Menu, X, Sprout, DollarSign, Lightbulb, Map, User, Rocket } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useState } from 'react';
 
@@ -22,6 +22,7 @@ export default function Sidebar({ currentPage, onPageChange, plantCount, taskCou
     { id: 'growth-plan' as PageView, label: 'План выращивания', icon: Sprout },
     { id: 'business' as PageView, label: 'Бизнес-советы', icon: Lightbulb },
     { id: 'bashkortostan-market' as PageView, label: 'Идеи для Башкирии', icon: Map },
+    { id: 'mvp-strategy' as PageView, label: 'Стратегия MVP', icon: Rocket },
     { id: 'statistics' as PageView, label: 'Статистика', icon: BarChart3 },
   ];
 
